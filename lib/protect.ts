@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { TokenPayload, verifyAccessToken } from "./jwt";
 
 export function getAuthUser(request: NextRequest): TokenPayload{
-  const authHeader = request.headers.get("Authorization ")
+  const authHeader = request.headers.get("Authorization")
   if(!authHeader || !authHeader.startsWith("Bearer ")){
     throw new Error("Unauthorized")
   }

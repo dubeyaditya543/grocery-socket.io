@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { env } from "@/lib/env";
 import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 import { User } from "@/lib/models/User";
-import { registerSchema } from "@/lib/validations/auth-schema";
+import { registerSchema } from "@/lib/validations/auth";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
 
     const { email, password, fullName } = parsed.data;
 
-    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return errorResponse("Email already registered. Please log in", 409);
@@ -51,9 +50,9 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    return response
+    return response;
   } catch (error) {
-    console.error("Signup error", error)
-    return errorResponse("Something went wrong", 500)
+    console.error("Signup error", error);
+    return errorResponse("Something went wrong", 500);
   }
 }

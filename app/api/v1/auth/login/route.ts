@@ -4,7 +4,7 @@ import { env } from "@/lib/env";
 import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 import { User } from "@/lib/models/User";
 import { comparePassword } from "@/lib/password";
-import { loginSchema } from "@/lib/validations/auth-schema";
+import { loginSchema } from "@/lib/validations/auth";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
       sameSite: "lax",
     });
 
-    return response
-  } catch(error) {
-    console.error("Login failed", error)
-    return errorResponse("Something went wrong", 500)
+    return response;
+  } catch (error) {
+    console.error("Login failed", error);
+    return errorResponse("Something went wrong", 500);
   }
 }
