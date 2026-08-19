@@ -8,7 +8,7 @@ import { itemSchema } from "@/lib/validations/models";
 import { NextRequest } from "next/server";
 
 interface Params {
-  params: Promise<{ listId: string, groupId: string }>;
+  params: Promise<{ listId: string; groupId: string }>;
 }
 
 export async function POST(request: NextRequest, { params }: Params) {
@@ -24,12 +24,12 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     await connectDB();
 
-    const group = await Group.findOne({_id: groupId, members: authUser.userId})
-    if(!group){
-      return errorResponse("Unauthorized", 401)
+    const group = await Group.findOne({ _id: groupId, members: authUser.userId });
+    if (!group) {
+      return errorResponse("Unauthorized", 401);
     }
 
-    const list = await List.findOne({_id: listId, group: groupId});
+    const list = await List.findOne({ _id: listId, group: groupId });
     if (!list) {
       return errorResponse("List not found", 404);
     }
