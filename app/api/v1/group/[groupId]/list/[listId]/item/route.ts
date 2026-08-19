@@ -5,6 +5,7 @@ import { Item } from "@/lib/models/Item";
 import { List } from "@/lib/models/List";
 import { getAuthUser } from "@/lib/protect";
 import { itemSchema } from "@/lib/validations/models";
+import mongoose from "mongoose";
 import { NextRequest } from "next/server";
 
 interface Params {
@@ -48,5 +49,42 @@ export async function POST(request: NextRequest, { params }: Params) {
     }
     console.error("Error in item route", error);
     return errorResponse("Something went wrong with item creation");
+  }
+}
+
+export async function GET(request: NextRequest, { params }: Params) {
+  try {
+    const authUser = getAuthUser(request);
+    const { listId, groupId } = await params;
+
+    if (!mongoose.isValidObjectId(listId) || !mongoose.isValidObjectId(groupId)) {
+      return errorResponse("Invalid group or list id", 400);
+    }
+
+    await connectDB();
+
+    const group = await Group.exists({ _id: groupId, members: authUser.userId });
+    if (!group) {
+      return errorResponse("Group not found", 404);
+    }
+
+    const list = await List.exists({
+      _id: listId,
+      group: groupId,
+    });
+
+    if (!list) {
+      return errorResponse("List not found", 404);
+    }
+
+    const items = await Item.find({ list: listId });
+
+    return successResponse(items, 200);
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return errorResponse("You are unauthorized", 403);
+    }
+    console.error("Something went wrong while fetching items", error);
+    return errorResponse("Something went wrong");
   }
 }
