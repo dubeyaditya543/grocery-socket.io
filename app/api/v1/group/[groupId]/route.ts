@@ -15,7 +15,7 @@ interface Params {
 export async function GET(request: NextRequest, { params }: Params) {
   try {
     const authUser = getAuthUser(request);
-    const { groupId } = await params; 
+    const { groupId } = await params;
 
     if (!mongoose.isValidObjectId(groupId)) {
       return errorResponse("Invalid group id", 400);
@@ -83,16 +83,17 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(request: NextRequest, { params }: Params) {
-  const session = await mongoose.startSession();
+  let session: mongoose.ClientSession | null = null;
   try {
     const authUser = getAuthUser(request);
     const { groupId } = await params;
 
-    await connectDB();
-
     if (!mongoose.isValidObjectId(groupId)) {
       return errorResponse("Invalid group id", 400);
     }
+
+    await connectDB();
+    session = await mongoose.startSession();
 
     const group = await Group.findOne({ _id: groupId, createdBy: authUser.userId });
     if (!group) {
@@ -124,6 +125,6 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     console.error("Something went wrong while deleting group", error);
     return errorResponse("Somehting went wrong");
   } finally {
-    await session.endSession();
+    if (session) await session.endSession();
   }
 }
