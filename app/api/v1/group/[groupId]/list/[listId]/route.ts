@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       return errorResponse("Group not found", 404);
     }
 
-    const list = await List.find({ _id: listId, group: groupId });
+    const list = await List.findOne({ _id: listId, group: groupId });
     if (!list) {
       return errorResponse("List not found", 404);
     }
@@ -58,6 +58,8 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return errorResponse(parsed.error.issues[0].message);
     }
 
+    await connectDB();
+
     const list = await List.findOne({ _id: listId, group: groupId, createdBy: authUser.userId });
     if (!list) {
       return errorResponse("List not found", 404);
@@ -66,10 +68,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     list.listName = parsed.data.listName;
     await list.save();
 
-    const updatedList = (await list.populate("createdBy", "fullName email avatarUrl")).populate(
-      "group",
-      "groupName",
-    );
+    const updatedList = await list.populate([
+      { path: "createdBy", select: "fullName email avatarUrl" },
+      { path: "group", select: "groupName" },
+    ]);
 
     return successResponse(updatedList, 200);
   } catch (error) {
@@ -82,7 +84,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(request: NextRequest, { params }: Params) {
-  const session = await mongoose.startSession();
+  let session: mongoose.ClientSession | null = null;
   try {
     const authUser = getAuthUser(request);
     const { groupId, listId } = await params;
@@ -90,6 +92,9 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     if (!mongoose.isValidObjectId(groupId) || !mongoose.isValidObjectId(listId)) {
       return errorResponse("Invalid group or list id");
     }
+
+    await connectDB();
+    session = await mongoose.startSession();
 
     const list = await List.findOne({ _id: listId, group: groupId, createdBy: authUser.userId });
     if (!list) {
@@ -113,5 +118,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
     console.error("Something went wrong while deleting list");
     return errorResponse("Something went wrong");
+  } finally {
+    if (session) await session.endSession();
   }
 }

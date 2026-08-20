@@ -18,6 +18,10 @@ export async function POST(request: NextRequest, { params }: Params) {
     const { listId, groupId } = await params;
     const body = await request.json();
 
+    if(!mongoose.isValidObjectId(listId) || !mongoose.isValidObjectId(groupId)){
+      return errorResponse("Invalid group or list id", 400)
+    }
+
     const parsed = itemSchema.safeParse(body);
     if (!parsed.success) {
       return errorResponse(parsed.error.issues[0].message, 422);

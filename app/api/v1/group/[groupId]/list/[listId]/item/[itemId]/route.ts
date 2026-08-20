@@ -1,4 +1,5 @@
 import { errorResponse, successResponse } from "@/lib/apiResponse";
+import { connectDB } from "@/lib/db";
 import { Group } from "@/lib/models/Group";
 import { Item } from "@/lib/models/Item";
 import { List } from "@/lib/models/List";
@@ -23,6 +24,8 @@ export async function GET(request: NextRequest, { params }: Params) {
     ) {
       return errorResponse("Invalid group, list or item id provided", 400);
     }
+
+    await connectDB();
 
     const group = await Group.exists({ _id: groupId, members: authUser.userId });
     if (!group) {
@@ -68,6 +71,8 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return errorResponse("Invalid group, list or item id provided", 400);
     }
 
+    await connectDB();
+
     const group = await Group.exists({ _id: groupId, members: authUser.userId });
     if (!group) {
       return errorResponse("Group not found", 404);
@@ -87,10 +92,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     item.quantity = parsed.data.quantity ?? item.quantity;
     await item.save();
 
-    const updatedItem = (await item.populate("addedBy", "fullName avatarUrl")).populate(
-      "list",
-      "listName",
-    );
+    const updatedItem = await item.populate([
+      { path: "addedBy", select: "fullName avatarUrl" },
+      { path: "list", select: "listName" },
+    ]);
 
     return successResponse(updatedItem, 200);
   } catch (error) {
@@ -102,11 +107,11 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(request: NextRequest, {params}:Params) {
+export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     const authUser = getAuthUser(request);
     const { groupId, listId, itemId } = await params;
-   
+
     if (
       !mongoose.isValidObjectId(groupId) ||
       !mongoose.isValidObjectId(listId) ||
@@ -114,6 +119,8 @@ export async function DELETE(request: NextRequest, {params}:Params) {
     ) {
       return errorResponse("Invalid group, list or item id provided", 400);
     }
+
+    await connectDB();
 
     const group = await Group.exists({ _id: groupId, members: authUser.userId });
     if (!group) {
@@ -130,7 +137,7 @@ export async function DELETE(request: NextRequest, {params}:Params) {
       return errorResponse("Item not found", 404);
     }
 
-    return successResponse({message: "Item deleted successfully"}, 200);
+    return successResponse({ message: "Item deleted successfully" }, 200);
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       return errorResponse("You are unauthorized", 403);

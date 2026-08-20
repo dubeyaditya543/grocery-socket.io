@@ -17,12 +17,13 @@ export async function POST(request: NextRequest) {
 
     const { email, password, fullName } = parsed.data;
 
+    await connectDB();
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return errorResponse("Email already registered. Please log in", 409);
     }
 
-    await connectDB();
 
     const user = await User.create({
       fullName,

@@ -17,6 +17,10 @@ export async function POST(request: NextRequest, { params }: Params) {
     const { groupId } = await params;
     const body = await request.json();
 
+    if(!mongoose.isValidObjectId(groupId)){
+      return errorResponse("Invalid group id", 400)
+    }
+
     const parsed = listSchema.safeParse(body);
     if (!parsed.success) {
       return errorResponse(parsed.error.issues[0].message, 422);
@@ -26,7 +30,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     await connectDB();
 
-    const group = await Group.findById(groupId);
+    const group = await Group.findOne({_id: groupId, members: authUser.userId});
 
     if (!group) {
       return errorResponse("Group not found", 404);
