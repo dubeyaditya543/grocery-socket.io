@@ -90,6 +90,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
     item.itemName = parsed.data.itemName;
     item.quantity = parsed.data.quantity ?? item.quantity;
+    item.purchased = parsed.data.purchased ?? item.purchased;
     await item.save();
 
     const updatedItem = await item.populate([

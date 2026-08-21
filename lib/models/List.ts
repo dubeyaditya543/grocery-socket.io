@@ -16,11 +16,11 @@ const listSchema = new Schema<IList>({
     trim: true,
   },
   group: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Group"
   },
   createdBy: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   }
 }, {timestamps: true});

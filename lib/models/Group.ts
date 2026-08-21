@@ -25,7 +25,7 @@ const groupSchema = new Schema<IGroup>(
       },
     ],
     createdBy: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     },
     joinCode: {
