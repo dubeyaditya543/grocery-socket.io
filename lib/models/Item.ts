@@ -23,12 +23,12 @@ const itemSchema = new Schema<IItem>(
       default: false,
     },
     addedBy: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     list: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "List",
       required: true,
     },

@@ -35,3 +35,21 @@ export async function POST(request: NextRequest) {
     return errorResponse("Something went wrong");
   }
 }
+
+export async function GET(request: NextRequest){
+  try{
+    const authUser = getAuthUser(request)
+    
+    await connectDB()
+
+    const groups = await Group.find({members: authUser.userId}).populate("createdBy", "fullName avatarUrl").populate("members", "fullName avatarUrl")
+
+    return successResponse(groups, 200)
+  }catch(error){
+    if(error instanceof Error && error.message === "Unauthorized"){
+      return errorResponse("You are unauthorized", 403)
+    }
+    console.error("Somehting went wrong while fetching groups", error)
+    return errorResponse("Something went wrong")
+  }
+}

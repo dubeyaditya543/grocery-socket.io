@@ -10,7 +10,8 @@ export const listSchema = z.object({
 
 export const itemSchema = z.object({
   itemName: z.string().min(1, "Item name is required").max(25, "Item name cannot exceed 25 chars"),
-  quantity: z.optional(z.number().min(1, "Quantity is required"))
+  quantity: z.optional(z.number().min(1, "Quantity is required")),
+  purchased: z.optional(z.boolean())
 })
 
 export type GroupFormValues = z.infer<typeof groupSchema>
