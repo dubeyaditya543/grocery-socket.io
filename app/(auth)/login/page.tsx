@@ -1,40 +1,37 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { CardContent } from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { AuthPageFeaturesCard } from "@/components/web/AuthPageFeaturesCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { RegisterFormValues, registerSchema } from "@/lib/validations/auth";
+import { LoginFormValues, loginSchema } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CardContent } from "@/components/ui/card";
-import { AuthPageFeaturesCard } from "@/components/web/AuthPageFeaturesCard";
 
-export default function SignupPage() {
-  const router = useRouter();
+export default function LoginPage() {
   const { setAuth } = useAuth();
-  const [serverError, setServerError] = useState<string | null>("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema as any),
+  const router = useRouter();
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema as any),
     values: {
-      fullName: "",
-      username: "",
       email: "",
       password: "",
     },
   });
 
-  async function handleSignupSubmit(data: RegisterFormValues) {
+  async function handleLoginForm(data: LoginFormValues) {
     setServerError(null);
 
     try {
-      const res = await fetch("/api/v1/auth/signup", {
+      const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -44,8 +41,9 @@ export default function SignupPage() {
       });
 
       const json = await res.json();
+
       if (!res.ok) {
-        setServerError(json.error ?? "Registration failed");
+        setServerError(json.error ?? "Login failed");
         return;
       }
 
@@ -63,61 +61,13 @@ export default function SignupPage() {
 
         <div className="flex w-fit flex-col items-center justify-center gap-4 bg-[#f3f6f5] p-6 sm:p-8 lg:p-10">
           <h1 className="self-start text-3xl font-semibold">
-            Join BasketSync.{" "}
+            Welcome Back,{" "}
             <span className="text-sm whitespace-nowrap">Enter your credentials to continue</span>
           </h1>
           <div className="w-full rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_10px_35px_-15px_rgba(0,0,0,0.06)] sm:p-8">
             {serverError && <p className="text-sm font-semibold text-red-500">{serverError}</p>}
             <CardContent>
-              <form className="space-y-4" onSubmit={form.handleSubmit(handleSignupSubmit)}>
-                <Controller
-                  name="fullName"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid} className="space-y-1">
-                      <FieldLabel
-                        htmlFor={field.name}
-                        className="text-xs font-medium text-slate-700 sm:text-sm"
-                      >
-                        Full Name
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                        placeholder="Full Name"
-                        autoComplete="name"
-                        className="h-10 rounded-lg border-slate-200 bg-white px-3.5 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20"
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
-                />
-
-                <Controller
-                  name="username"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid} className="space-y-1">
-                      <FieldLabel
-                        htmlFor={field.name}
-                        className="text-xs font-medium text-slate-700 sm:text-sm"
-                      >
-                        Username
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                        placeholder="Username"
-                        autoComplete="username"
-                        className="h-10 rounded-lg border-slate-200 bg-white px-3.5 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20"
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
-                />
-
+              <form className="space-y-4" onSubmit={form.handleSubmit(handleLoginForm)}>
                 <Controller
                   control={form.control}
                   name="email"
@@ -186,17 +136,17 @@ export default function SignupPage() {
                   disabled={form.formState.isSubmitting}
                   className="mt-1 h-10 w-full rounded-lg bg-[#111827] text-sm font-medium text-white shadow-sm transition-all duration-150 hover:cursor-pointer hover:bg-black/80"
                 >
-                  {form.formState.isSubmitting ? "Creating Account..." : "Create Account"}
+                  {form.formState.isSubmitting ? "Logging in..." : "Log in"}
                 </Button>
 
                 <div className="pt-1 text-center">
                   <p className="text-xs text-slate-500">
-                    Already have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link
-                      href="/login"
+                      href="/signup"
                       className="font-medium text-emerald-700 transition-colors hover:text-emerald-800 hover:underline"
                     >
-                      Log In
+                      Create account
                     </Link>
                   </p>
                 </div>
