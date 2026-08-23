@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         user: {
           userId: existingUser._id,
           fullName: existingUser.fullName,
+          username: existingUser.username,
           email,
         },
         accessToken,

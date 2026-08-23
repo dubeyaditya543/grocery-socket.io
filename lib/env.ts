@@ -8,7 +8,7 @@ const envScheam = z.object({
   JWT_REFRESH_SECRET: z.string().min(32, "Jwt refresh secret must be at least 32 chars"),
   CLOUDINARY_CLOUD_NAME: z.string().min(1, "Cloudinary cloud name is required"),
   CLOUDINARY_API_KEY: z.string().min(1, "Cloudinary api key is required"),
-  CLOUDINARY_API_SECRET: z.string().min(1, "Cloudinary api secret is required")
+  CLOUDINARY_SECRET_KEY: z.string().min(1, "Cloudinary api secret is required")
 })
 
 const parsed = envScheam.safeParse(process.env)

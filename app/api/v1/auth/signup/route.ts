@@ -15,18 +15,18 @@ export async function POST(request: NextRequest) {
       return errorResponse(parsed.error.issues[0].message, 422);
     }
 
-    const { email, password, fullName } = parsed.data;
+    const { email, password, fullName, username } = parsed.data;
 
     await connectDB();
-    
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return errorResponse("Email already registered. Please log in", 409);
     }
 
-
     const user = await User.create({
       fullName,
+      username,
       email,
       password,
     });
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     const response = successResponse(
       {
-        user: { userId: user._id, fullName, email },
+        user: { userId: user._id, fullName, username, email },
         accessToken,
       },
       201,
