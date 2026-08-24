@@ -11,16 +11,19 @@ import {
   Bell,
   Plus,
   Key,
-  X,
-  PlusCircle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { CreateGroupCard } from "@/components/web/CreateGroupCard";
+import { CreateGroupBtn } from "@/components/web/CreateGroupBtn";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
 
 export default function DashboardPage() {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
-    <div className="flex min-h-screen w-full  bg-[#f4f7f6] text-slate-900">
+    <div className="flex min-h-screen w-full bg-[#f4f7f6] text-slate-900">
       {/* Left Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col justify-between bg-[#111822] p-5 text-slate-300 md:flex">
         <div className="space-y-8">
@@ -77,9 +80,10 @@ export default function DashboardPage() {
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
               alt="User Profile"
               className="h-9 w-9 rounded-full object-cover ring-2 ring-white/10"
-              width={"48"} height={"48"}
+              width={"48"}
+              height={"48"}
             />
-            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-[#111822]" />
+            <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-[#111822]" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-white">User Profile</p>
@@ -94,13 +98,13 @@ export default function DashboardPage() {
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-200/80 bg-white px-6">
           {/* Search Bar */}
           <div className="relative w-full max-w-md">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
               type="text"
               placeholder="Search"
-              className="h-10 rounded-xl border-slate-200 bg-slate-50 pl-10 pr-24 text-sm placeholder:text-slate-400 focus-visible:bg-white focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20"
+              className="h-10 rounded-xl border-slate-200 bg-slate-50 pr-24 pl-10 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:bg-white focus-visible:ring-emerald-500/20"
             />
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400">
+            <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400">
               Shortcut 1.9
             </span>
           </div>
@@ -134,7 +138,9 @@ export default function DashboardPage() {
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">Group Cards</h1>
-              <p className="text-xs text-slate-500">Manage all your collaborative shopping groups in one place</p>
+              <p className="text-xs text-slate-500">
+                Manage all your collaborative shopping groups in one place
+              </p>
             </div>
           </div>
 
@@ -145,15 +151,19 @@ export default function DashboardPage() {
             </div>
 
             <h2 className="text-xl font-bold text-slate-900">You are not in any group</h2>
-            <p className="mt-1.5 max-w-sm text-sm text-slate-500 leading-relaxed">
-              Join an existing group with an 8-digit code or create a new group to start sharing real-time grocery lists with your household.
+            <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-slate-500">
+              Join an existing group with an 8-digit code or create a new group to start sharing
+              real-time grocery lists with your household.
             </p>
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button className="h-10 gap-2 rounded-xl bg-[#0c5443] px-5 text-sm font-semibold text-white transition hover:bg-[#094738]">
-                <PlusCircle className="h-4 w-4" />
-                <span>Create Group</span>
-              </Button>
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger render={<CreateGroupBtn />} />
+                <DialogContent className="border-none bg-transparent p-0">
+                  <CreateGroupCard />
+                </DialogContent>
+              </Dialog>
+
               <Button
                 variant="outline"
                 className="h-10 gap-2 rounded-xl border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
@@ -164,26 +174,6 @@ export default function DashboardPage() {
             </div>
 
             {/* Visual Join Code Modal Overlay Preview (as depicted in mockup) */}
-            <div className="absolute bottom-6 right-6 hidden w-72 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xl sm:block text-left">
-              <div className="mb-2 flex items-center justify-between">
-                <h4 className="text-xs font-bold text-slate-900">Join Code</h4>
-                <button className="text-slate-400 hover:text-slate-600">
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <p className="text-[11px] text-slate-500 mb-3">
-                Enter an 8-digit Join Code to join a list.
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Join Code"
-                  className="h-8 text-xs rounded-lg border-slate-200"
-                />
-                <Button className="h-8 rounded-lg bg-[#111822] px-3 text-xs font-semibold text-white hover:bg-black shrink-0">
-                  Enter Group
-                </Button>
-              </div>
-            </div>
           </div>
         </main>
       </div>

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     const response = successResponse({
       user: {
-        id: user._id,
+        userId: user._id,
         fullName: user.fullName,
         avatarUrl: user.avatarUrl ?? "",
       },

@@ -22,5 +22,5 @@ export function signRefreshToken(payload: TokenPayload): string{
 }
 
 export function verifyRefreshToken(token: string): TokenPayload{
-  return jwt.verify(token, env.JWT_ACCESS_SECRET) as TokenPayload
+  return jwt.verify(token, env.JWT_REFRESH_SECRET) as TokenPayload
 }
