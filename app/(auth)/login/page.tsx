@@ -47,8 +47,8 @@ export default function LoginPage() {
         return;
       }
 
-      setAuth(json.user, json.accessToken);
-      router.push("/");
+      setAuth(json.data.user, json.data.accessToken);
+      router.push("/dashboard");
     } catch {
       setServerError("Something went wrong. Please try again");
     }
