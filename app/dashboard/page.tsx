@@ -1,16 +1,8 @@
 import Link from "next/link";
-import {
-  ShoppingBag,
-  Users,
-  ListTodo,
-  History,
-  Settings,
-  Search,
-  Bell,
-} from "lucide-react";
+import { ShoppingBag, Users, ListTodo, History, Settings, Search, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { CreateGroupCard } from "@/components/web/CreateGroupCard";
+import { CreateGroupForm } from "@/components/web/CreateGroupForm";
 import { CreateGroupBtn } from "@/components/web/CreateGroupBtn";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { JoinGroupBtn } from "@/components/web/JoinGroupBtn";
@@ -136,7 +128,7 @@ export default async function DashboardPage() {
             <Popover>
               <PopoverTrigger render={<CreateGroupBtn />} />
               <PopoverContent>
-                <CreateGroupCard />
+                <CreateGroupForm />
               </PopoverContent>
             </Popover>
 
@@ -164,7 +156,7 @@ export default async function DashboardPage() {
           {/* Empty State Card - "You are not in any group" */}
           <div className="relative flex min-h-105 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
             {groups.length > 0 ? (
-              <div className="flex gap-4 flex-wrap">
+              <div className="flex flex-wrap gap-4">
                 {groups.map((group) => (
                   <GroupCard group={JSON.parse(JSON.stringify(group))} key={group._id.toString()} />
                 ))}
@@ -185,7 +177,7 @@ export default async function DashboardPage() {
                   <Dialog>
                     <DialogTrigger render={<CreateGroupBtn />} />
                     <DialogContent className="border-none bg-transparent p-0">
-                      <CreateGroupCard />
+                      <CreateGroupForm />
                     </DialogContent>
                   </Dialog>
 
