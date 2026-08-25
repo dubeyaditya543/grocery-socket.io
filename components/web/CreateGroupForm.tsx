@@ -9,8 +9,9 @@ import { Input } from "../ui/input";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { createGroupAction } from "@/lib/actions/group-action";
 
-export function CreateGroupCard() {
+export function CreateGroupForm() {
   const { user, accessToken } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<GroupFormValues>({
@@ -22,27 +23,18 @@ export function CreateGroupCard() {
 
   async function handleGroupFormSubmit(data: GroupFormValues) {
     setServerError(null);
-    try {
-      const res = await fetch("/api/v1/group", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(data),
-      });
+    
+    const formData = new FormData()
+    formData.append("groupName", data.groupName)
 
-      const json = await res.json();
+    const result = await createGroupAction(accessToken, {success: false}, formData)
 
-      if (!res.ok) {
-        setServerError(json.message ?? "Group creation failed");
-        return;
-      }
-    } catch {
-      console.error("Something went wrong");
-      setServerError("Something went wrong. Please try again");
+    if(!result.success){
+      setServerError(result.error ?? "Something went wrong")
+      return;
     }
+
+    form.reset()
   }
 
   if (!user) {
@@ -56,9 +48,7 @@ export function CreateGroupCard() {
           <CardTitle>Create Group</CardTitle>
         </CardHeader>
         <CardContent>
-          {serverError && (
-            <p className="container font-semibold text-red-500">{serverError}</p>
-          )}
+          {serverError && <p className="container font-semibold text-red-500">{serverError}</p>}
           <form onSubmit={form.handleSubmit(handleGroupFormSubmit)} className="space-y-4">
             <Controller
               name="groupName"
@@ -74,7 +64,7 @@ export function CreateGroupCard() {
               type="submit"
               disabled={form.formState.isSubmitting}
               className={
-                "flex w-fit mx-auto self-center bg-green-800/80 hover:cursor-pointer hover:bg-green-700/80"
+                "mx-auto flex w-fit self-center bg-green-800/80 hover:cursor-pointer hover:bg-green-700/80"
               }
             >
               {form.formState.isSubmitting ? "Creating..." : "Create"}

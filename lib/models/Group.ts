@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { nanoid } from "nanoid";
+import "@/lib/models/User"
 
 export interface IGroup extends Document {
   groupName: string;
@@ -20,7 +21,7 @@ const groupSchema = new Schema<IGroup>(
     },
     members: [
       {
-        type: mongoose.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
