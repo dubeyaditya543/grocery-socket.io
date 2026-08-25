@@ -42,7 +42,7 @@ export async function GET(request: NextRequest){
     
     await connectDB()
 
-    const groups = await Group.find({members: authUser.userId}).populate("createdBy", "fullName avatarUrl").populate("members", "fullName avatarUrl")
+    const groups = await Group.find({members: authUser.userId}).populate("createdBy", "fullName avatarUrl").populate("members", "fullName avatarUrl").lean()
 
     return successResponse(groups, 200)
   }catch(error){

@@ -11,7 +11,7 @@ import { Button } from "../ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function CreateGroupCard() {
-  const {user, accessToken} = useAuth()
+  const { user, accessToken } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<GroupFormValues>({
     resolver: zodResolver(groupSchema as any),
@@ -28,7 +28,7 @@ export function CreateGroupCard() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}`
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(data),
       });
@@ -36,30 +36,30 @@ export function CreateGroupCard() {
       const json = await res.json();
 
       if (!res.ok) {
-        setServerError(json.error ?? "Group creation failed");
+        setServerError(json.message ?? "Group creation failed");
         return;
       }
-
-      
     } catch {
       console.error("Something went wrong");
       setServerError("Something went wrong. Please try again");
     }
   }
 
-  if(!user){
-    return null
+  if (!user) {
+    return null;
   }
 
   return (
     <div>
-      <form onSubmit={form.handleSubmit(handleGroupFormSubmit)}>
-        <Card>
-          {serverError && <p className="container ml-6 font-semibold text-red-500">{serverError}</p>}
-          <CardHeader>
-            <CardTitle>Create Group</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Group</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {serverError && (
+            <p className="container font-semibold text-red-500">{serverError}</p>
+          )}
+          <form onSubmit={form.handleSubmit(handleGroupFormSubmit)} className="space-y-4">
             <Controller
               name="groupName"
               control={form.control}
@@ -70,18 +70,18 @@ export function CreateGroupCard() {
                 </Field>
               )}
             />
-          </CardContent>
-          <Button
-            type="submit"
-            disabled={form.formState.isSubmitting}
-            className={
-              "flex w-fit self-center bg-green-800/80 hover:cursor-pointer hover:bg-green-700/80"
-            }
-          >
-            {form.formState.isSubmitting ? "Creating..." : "Create"}
-          </Button>
-        </Card>
-      </form>
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting}
+              className={
+                "flex w-fit mx-auto self-center bg-green-800/80 hover:cursor-pointer hover:bg-green-700/80"
+              }
+            >
+              {form.formState.isSubmitting ? "Creating..." : "Create"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

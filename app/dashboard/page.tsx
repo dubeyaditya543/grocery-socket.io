@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   ShoppingBag,
@@ -9,19 +7,34 @@ import {
   Settings,
   Search,
   Bell,
-  Plus,
-  Key,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { CreateGroupCard } from "@/components/web/CreateGroupCard";
 import { CreateGroupBtn } from "@/components/web/CreateGroupBtn";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { JoinGroupBtn } from "@/components/web/JoinGroupBtn";
+import { JoinGroupCard } from "@/components/web/JoinGroupCard";
+import { connectDB } from "@/lib/db";
+import { getAutUserFromCookies } from "@/lib/serverAuth";
+import { Group } from "@/lib/models/Group";
+import { redirect } from "next/navigation";
+import { GroupCard } from "@/components/web/GroupCard";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-export default function DashboardPage() {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+export default async function DashboardPage() {
+  await connectDB();
+
+  const user = await getAutUserFromCookies();
+  if (!user) {
+    redirect("/login");
+  }
+
+  const groups = await Group.find({ members: user.userId })
+    .populate("createdBy", "fullName avatarUrl")
+    .populate("members", "fullName avatarUrl")
+    .lean();
+
   return (
     <div className="flex min-h-screen w-full bg-[#f4f7f6] text-slate-900">
       {/* Left Sidebar */}
@@ -120,16 +133,20 @@ export default function DashboardPage() {
             </button>
 
             {/* Create New Group Button */}
-            <Button className="h-10 gap-2 rounded-xl bg-[#0c5443] px-4 text-sm font-semibold text-white shadow-xs transition hover:bg-[#094738]">
-              <Plus className="h-4 w-4" />
-              <span>Create New Group</span>
-            </Button>
+            <Popover>
+              <PopoverTrigger render={<CreateGroupBtn />} />
+              <PopoverContent>
+                <CreateGroupCard />
+              </PopoverContent>
+            </Popover>
 
             {/* Join with Code Button */}
-            <Button className="h-10 gap-2 rounded-xl bg-[#111822] px-4 text-sm font-semibold text-white shadow-xs transition hover:bg-black">
-              <Key className="h-4 w-4 text-amber-400" />
-              <span>Join with Code</span>
-            </Button>
+            <Popover>
+              <PopoverTrigger render={<JoinGroupBtn />} />
+              <PopoverContent>
+                <JoinGroupCard />
+              </PopoverContent>
+            </Popover>
           </div>
         </header>
 
@@ -146,34 +163,41 @@ export default function DashboardPage() {
 
           {/* Empty State Card - "You are not in any group" */}
           <div className="relative flex min-h-105 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-[#0c5443] ring-8 ring-emerald-50/50">
-              <Users className="h-8 w-8" />
-            </div>
+            {groups.length > 0 ? (
+              <div className="flex gap-4 flex-wrap">
+                {groups.map((group) => (
+                  <GroupCard group={JSON.parse(JSON.stringify(group))} key={group._id.toString()} />
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-[#0c5443] ring-8 ring-emerald-50/50">
+                  <Users className="h-8 w-8" />
+                </div>
 
-            <h2 className="text-xl font-bold text-slate-900">You are not in any group</h2>
-            <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-slate-500">
-              Join an existing group with an 8-digit code or create a new group to start sharing
-              real-time grocery lists with your household.
-            </p>
+                <h2 className="text-xl font-bold text-slate-900">You are not in any group</h2>
+                <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-slate-500">
+                  Join an existing group with an 8-digit code or create a new group to start sharing
+                  real-time grocery lists with your household.
+                </p>
 
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger render={<CreateGroupBtn />} />
-                <DialogContent className="border-none bg-transparent p-0">
-                  <CreateGroupCard />
-                </DialogContent>
-              </Dialog>
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  <Dialog>
+                    <DialogTrigger render={<CreateGroupBtn />} />
+                    <DialogContent className="border-none bg-transparent p-0">
+                      <CreateGroupCard />
+                    </DialogContent>
+                  </Dialog>
 
-              <Button
-                variant="outline"
-                className="h-10 gap-2 rounded-xl border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-              >
-                <Key className="h-4 w-4 text-slate-500" />
-                <span>Join with Code</span>
-              </Button>
-            </div>
-
-            {/* Visual Join Code Modal Overlay Preview (as depicted in mockup) */}
+                  <Dialog>
+                    <DialogTrigger render={<JoinGroupBtn />} />
+                    <DialogContent className="border-none bg-transparent p-0">
+                      <JoinGroupCard />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </>
+            )}
           </div>
         </main>
       </div>
