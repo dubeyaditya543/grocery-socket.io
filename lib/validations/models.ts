@@ -14,5 +14,10 @@ export const itemSchema = z.object({
   purchased: z.optional(z.boolean())
 })
 
+export const joinGroupSchema = z.object({
+  joinCode: z.string().min(1, "Join code is required")
+})
+
 export type GroupFormValues = z.infer<typeof groupSchema>
 export type ListFormValues = z.infer<typeof listSchema>
+export type JoinGroupFormValues = z.infer<typeof joinGroupSchema>

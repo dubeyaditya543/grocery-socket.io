@@ -45,7 +45,7 @@ export default function SignupPage() {
 
       const json = await res.json();
       if (!res.ok) {
-        setServerError(json.error ?? "Registration failed");
+        setServerError(json.message ?? "Registration failed");
         return;
       }
 

@@ -81,7 +81,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       return errorResponse("List not found", 404);
     }
 
-    const items = await Item.find({ list: listId });
+    const items = await Item.find({ list: listId }).lean();
 
     return successResponse(items, 200);
   } catch (error) {

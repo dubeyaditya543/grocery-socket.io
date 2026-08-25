@@ -70,7 +70,7 @@ export async function GET(request: NextRequest, { params }: Params) {
 
     const lists = await List.find({ group: groupId })
       .populate("createdBy", "fullName email avatarUrl")
-      .populate("group", "groupName");
+      .populate("group", "groupName").lean();
 
     return successResponse(lists, 200);
   } catch (error) {
