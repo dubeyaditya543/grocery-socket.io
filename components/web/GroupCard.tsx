@@ -1,4 +1,5 @@
-import { getAutUserFromCookies } from "@/lib/serverAuth";
+"use client";
+
 import { CheckCircle2, MoreVertical, Copy } from "lucide-react";
 import Image from "next/image";
 import {
@@ -8,6 +9,9 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
+import { deleteGroupAction } from "@/lib/actions/group-action";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface GroupCardProps {
   group: {
@@ -27,16 +31,32 @@ interface GroupCardProps {
   };
 }
 
-export async function GroupCard({ group }: GroupCardProps) {
-  const user = await getAutUserFromCookies();
+interface DeleteGroupProps {
+  groupId: string;
+}
+
+export function GroupCard({ group }: GroupCardProps) {
+  const { user, accessToken } = useAuth();
+  const router = useRouter();
   if (!user) {
     return null;
   }
 
-  const isCreator = group.createdBy?._id && group.createdBy._id.toString() === user.userId;
+  const isCreator = group.createdBy._id && group.createdBy._id === user.userId;
+
+  async function handleDelete({ groupId }: DeleteGroupProps) {
+    const response = await deleteGroupAction(accessToken, groupId);
+    if (!response.success) {
+      console.error(response.error ?? "Something went wrong");
+      return;
+    }
+  }
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-200 hover:cursor-pointer hover:shadow-md">
+    <div
+      className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-200 hover:cursor-pointer hover:shadow-md"
+      onClick={() => router.push(`/dashboard/group/${group._id}`)}
+    >
       {/* Header with Title and More Menu */}
       <div className="space-y-1.5">
         <div className="flex items-start justify-between gap-2">
@@ -55,7 +75,13 @@ export async function GroupCard({ group }: GroupCardProps) {
             />
             <DropdownMenuContent>
               <DropdownMenuItem className={"cursor-pointer"}>Edit</DropdownMenuItem>
-              <DropdownMenuItem className={"text-red-500  cursor-pointer"}>
+              <DropdownMenuItem
+                className={"cursor-pointer text-red-500"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDelete({ groupId: group._id });
+                }}
+              >
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -86,8 +112,8 @@ export async function GroupCard({ group }: GroupCardProps) {
                   }
                   alt={member.fullName || "Member"}
                   className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
-                  width={"48"}
-                  height={"48"}
+                  width={48}
+                  height={48}
                 />
               ))
           ) : (
@@ -96,22 +122,22 @@ export async function GroupCard({ group }: GroupCardProps) {
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
                 alt="Member 1"
                 className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
-                width={"48"}
-                height={"48"}
+                width={48}
+                height={48}
               />
               <Image
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
                 alt="Member 2"
                 className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
-                width={"48"}
-                height={"48"}
+                width={48}
+                height={48}
               />
               <Image
                 src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
                 alt="Member 3"
                 className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
-                width={"48"}
-                height={"48"}
+                width={48}
+                height={48}
               />
             </>
           )}

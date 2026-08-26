@@ -13,6 +13,7 @@ import { Group } from "@/lib/models/Group";
 import { redirect } from "next/navigation";
 import { GroupCard } from "@/components/web/GroupCard";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { User } from "@/lib/models/User";
 
 export default async function DashboardPage() {
   await connectDB();
@@ -26,6 +27,11 @@ export default async function DashboardPage() {
     .populate("createdBy", "fullName avatarUrl")
     .populate("members", "fullName avatarUrl")
     .lean();
+
+  const loggedInUser = await User.findById(user.userId);
+  if (!loggedInUser) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen w-full bg-[#f4f7f6] text-slate-900">
@@ -82,17 +88,24 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/5 p-3">
           <div className="relative">
             <Image
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+              src={
+                loggedInUser.avatarUrl
+                  ? loggedInUser.avatarUrl
+                  : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+              }
               alt="User Profile"
               className="h-9 w-9 rounded-full object-cover ring-2 ring-white/10"
-              width={"48"}
-              height={"48"}
+              width={48}
+              height={48}
+              loading="eager"
             />
             <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-[#111822]" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-white">User Profile</p>
-            <p className="truncate text-xs text-slate-400">aditya@example.com</p>
+            <p className="truncate text-sm font-semibold text-white">
+              {loggedInUser && loggedInUser.fullName}
+            </p>
+            <p className="truncate text-xs text-slate-400">{loggedInUser && loggedInUser.email}</p>
           </div>
         </div>
       </aside>
