@@ -48,7 +48,7 @@ export async function createGroupAction(
 }
 
 export async function deleteGroupAction(
-  accessToken: string,
+  accessToken: string | null,
   groupId: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!accessToken) {
@@ -101,7 +101,7 @@ export async function deleteGroupAction(
   return { success: true };
 }
 
-export async function patchGroupAction(accessToken: string, groupId: string, _prevState: {success: boolean, error?: string}, formData: FormData): Promise<{success: boolean, error?: string}>{
+export async function patchGroupAction(accessToken: string | null, groupId: string, _prevState: {success: boolean, error?: string}, formData: FormData): Promise<{success: boolean, error?: string}>{
   if(!accessToken){
     return {success: false, error: "You must be logged in."}
   }

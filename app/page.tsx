@@ -101,29 +101,29 @@ export default function Home() {
                   <Image
                     className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-white"
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                    width="48"
-                    height={"48"}
+                    width=48
+                    height={48}
                     alt="User 1"
                   />
                   <Image
                     className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-white"
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-                    width="48"
-                    height="48"
+                    width=48
+                    height=48
                     alt="User 2"
                   />
                   <Image
                     className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-white"
                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-                    width="48"
-                    height="48"
+                    width=48
+                    height=48
                     alt="User 3"
                   />
                   <Image
                     className="inline-block h-8 w-8 rounded-full object-cover ring-2 ring-white"
                     src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80"
-                    width="48"
-                    height="48"
+                    width=48
+                    height=48
                     alt="User 4"
                   />
                 </div>
@@ -147,7 +147,7 @@ export default function Home() {
                   <Image
                     src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80"
                     className="h-7 w-7 rounded-full object-cover"
-                    alt="Active shopper" width={"48"} height={"48"}
+                    alt="Active shopper" width={48} height={48}
                   />
                   <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
                 </div>
@@ -174,12 +174,12 @@ export default function Home() {
                       <Image
                         src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
                         className="h-7 w-7 rounded-full object-cover ring-2 ring-white"
-                        alt="Avatar" width={"48"} height={"48"}
+                        alt="Avatar" width={48} height={48}
                       />
                       <Image
                         src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80"
                         className="h-7 w-7 rounded-full object-cover ring-2 ring-white"
-                        alt="Avatar" width={"48"} height={"48"}
+                        alt="Avatar" width={48} height={48}
                       />
                     </div>
                   </div>
