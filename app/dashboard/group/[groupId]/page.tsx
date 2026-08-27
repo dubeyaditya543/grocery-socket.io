@@ -160,7 +160,7 @@ export default async function GroupDetailsPage({ params }: Params) {
               {/* Quantity Input */}
               <div className="sm:col-span-2">
                 <Input
-                  type="text"
+                  type="number"
                   placeholder="Qty: 2"
                   className="h-10 rounded-xl border-slate-200 bg-slate-50 px-3.5 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:bg-white focus-visible:ring-emerald-500/20"
                 />
