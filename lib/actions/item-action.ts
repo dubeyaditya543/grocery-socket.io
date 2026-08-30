@@ -27,7 +27,7 @@ export async function createItemAction(
   const rawQuantity = formData.get("quantity");
   const quantity = rawQuantity ? Number(rawQuantity) : undefined;
 
-  const parsed = itemSchema.safeParse({ itemName, quantity });
+  const parsed = itemSchema.safeParse({ itemName, listId, quantity });
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }

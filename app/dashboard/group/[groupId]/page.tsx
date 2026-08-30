@@ -7,14 +7,11 @@ import {
   History,
   Settings,
   Check,
-  Plus,
   ShoppingCart,
   UserPlus,
   MoreVertical,
-  ChevronDown,
   Radio,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getAutUserFromCookies } from "@/lib/serverAuth";
 import { notFound, redirect } from "next/navigation";
@@ -23,6 +20,7 @@ import { connectDB } from "@/lib/db";
 import { Group } from "@/lib/models/Group";
 import { List } from "@/lib/models/List";
 import { MemberStack } from "@/components/web/MemberStack";
+import { AddItemListContainer } from "@/components/web/AddItemListContainer";
 
 interface Params {
   params: Promise<{ groupId: string }>;
@@ -40,16 +38,18 @@ export default async function GroupDetailsPage({ params }: Params) {
   }
 
   await connectDB();
-  const group = await Group.findOne({ _id: groupId, members: user.userId }).populate(
-    "members",
-    "fullName avatarUrl",
-  ).lean();
+  const group = await Group.findOne({ _id: groupId, members: user.userId })
+    .populate("members", "fullName avatarUrl")
+    .populate("createdBy", "fullName avatarUrl")
+    .lean();
 
   if (!group) {
     notFound();
   }
 
-  const lists = await List.find({ group: group._id });
+  const lists = await List.find({ group: group._id })
+    .populate("createdBy", "fullName avatarUrl")
+    .lean();
 
   return (
     <div className="flex min-h-screen w-full bg-[#f4f7f6] text-slate-900">
@@ -147,44 +147,7 @@ export default async function GroupDetailsPage({ params }: Params) {
 
           {/* Add Item Bar Container */}
           <div className="mb-6 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs">
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-12 sm:items-center">
-              {/* Item Name Input */}
-              <div className="sm:col-span-5">
-                <Input
-                  type="text"
-                  placeholder="[ Item Name ]"
-                  className="h-10 rounded-xl border-slate-200 bg-slate-50 px-3.5 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:bg-white focus-visible:ring-emerald-500/20"
-                />
-              </div>
-
-              {/* Quantity Input */}
-              <div className="sm:col-span-2">
-                <Input
-                  type="number"
-                  placeholder="Qty: 2"
-                  className="h-10 rounded-xl border-slate-200 bg-slate-50 px-3.5 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:bg-white focus-visible:ring-emerald-500/20"
-                />
-              </div>
-
-              {/* Category Dropdown */}
-              <div className="sm:col-span-3">
-                <button
-                  type="button"
-                  className="flex h-10 w-full items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-600 transition hover:bg-slate-100"
-                >
-                  <span>Category</span>
-                  <ChevronDown className="h-4 w-4 text-slate-400" />
-                </button>
-              </div>
-
-              {/* Add Item Action Button */}
-              <div className="sm:col-span-2">
-                <Button className="h-10 w-full gap-1.5 rounded-xl bg-[#0c5443] px-4 text-sm font-semibold text-white shadow-xs transition hover:bg-[#094738]">
-                  <Plus className="h-4 w-4" />
-                  <span>Add Item</span>
-                </Button>
-              </div>
-            </div>
+            <AddItemListContainer groupId={groupId} lists={JSON.parse(JSON.stringify(lists))} />
           </div>
 
           {/* Grocery Items List */}
