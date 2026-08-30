@@ -9,8 +9,9 @@ export const listSchema = z.object({
 })
 
 export const itemSchema = z.object({
-  itemName: z.string().min(1, "Item name is required").max(25, "Item name cannot exceed 25 chars"),
-  quantity: z.optional(z.number().min(1, "Quantity is required")),
+  itemName: z.string().min(1, "Item name is required").max(25, "Item name cannot exceed 25 chars").trim(),
+  listId: z.string().min(1, "Please select a list"),
+  quantity: z.optional(z.coerce.number().min(1, "Quantity is required")),
   purchased: z.optional(z.boolean())
 })
 
@@ -21,3 +22,4 @@ export const joinGroupSchema = z.object({
 export type GroupFormValues = z.infer<typeof groupSchema>
 export type ListFormValues = z.infer<typeof listSchema>
 export type JoinGroupFormValues = z.infer<typeof joinGroupSchema>
+export type ItemFormValues = z.infer<typeof itemSchema>
