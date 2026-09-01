@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { AvatarPic } from "./AvatarPic";
+import { AvatarGroupCount } from "../ui/avatar";
 
 interface MemberStackProps {
   members: Array<{
@@ -10,22 +12,20 @@ interface MemberStackProps {
 
 export function MemberStack({ members }: MemberStackProps) {
   return (
-    <div className="flex -space-x-2 overflow-hidden">
+    <div className="flex items-center -space-x-2 overflow-hidden">
       {members.slice(0, 4).map((member) => (
-        <Image
+        <AvatarPic
           key={member._id}
-          className="inline-block h-9 w-9 rounded-full object-cover ring-2 ring-white"
-          src={
-            member.avatarUrl ||
-            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-          }
-          alt="member"
-          width={48} height={48}
+          _id={member._id}
+          fullName={member.fullName}
+          avatarUrl={member.avatarUrl}
         />
       ))}
-      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-[#0c5443] ring-2 ring-white">
-        +2
-      </div>
+      {members.length - 4 > 0 && (
+        <AvatarGroupCount className="bg-green-500 text-sm font-semibold text-white">
+          +{members.length}
+        </AvatarGroupCount>
+      )}
     </div>
   );
 }

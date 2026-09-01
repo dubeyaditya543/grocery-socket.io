@@ -69,7 +69,7 @@ export async function createItemAction(
 }
 
 export async function deleteItemAction(
-  accessToken: string,
+  accessToken: string | null,
   groupId: string,
   listId: string,
   itemId: string,
@@ -106,9 +106,9 @@ export async function deleteItemAction(
       return { success: false, error: "List not found" };
     }
 
-    const item = await Item.findOneAndDelete({ _id: itemId, list: listId });
+    const item = await Item.findOneAndDelete({ _id: itemId, list: listId, addedBy: authUser.userId });
     if (!item) {
-      return { success: false, error: "Item not found" };
+      return { success: false, error: "Unauthorized" };
     }
   } catch {
     return { success: false, error: "Something went wrong" };
