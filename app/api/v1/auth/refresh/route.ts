@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       user: {
         userId: user._id,
         fullName: user.fullName,
+        email: user.email,
         avatarUrl: user.avatarUrl ?? "",
       },
       accessToken: newAccessToken,

@@ -1,6 +1,8 @@
 import { History, ListTodo, Settings, ShoppingBag, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { UserProfileMenu } from "./UserProfileMenu";
+import { AvatarPic } from "./AvatarPic";
 
 interface SidebarProps {
   loggedInUser: {
@@ -63,26 +65,21 @@ export function Sidebar({ loggedInUser }: SidebarProps) {
       {/* User Profile Bar at Bottom of Sidebar */}
       <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/5 p-3">
         <div className="relative">
-          <Image
-            src={
-              loggedInUser.avatarUrl
-                ? loggedInUser.avatarUrl
-                : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-            }
-            alt="User Profile"
-            className="h-9 w-9 rounded-full object-cover ring-2 ring-white/10"
-            width={48}
-            height={48}
-            loading="eager"
-          />
+          {loggedInUser.avatarUrl ? (
+            <Image
+              src={loggedInUser.avatarUrl}
+              alt="User Profile"
+              className="h-9 w-9 rounded-full object-cover ring-2 ring-white/10"
+              width={48}
+              height={48}
+              loading="eager"
+            />
+          ) : (
+            <AvatarPic fullName={loggedInUser.fullName} />
+          )}
           <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-[#111822]" />
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-white">
-            {loggedInUser && loggedInUser.fullName}
-          </p>
-          <p className="truncate text-xs text-slate-400">{loggedInUser && loggedInUser.email}</p>
-        </div>
+        <UserProfileMenu />
       </div>
     </aside>
   );

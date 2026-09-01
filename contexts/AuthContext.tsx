@@ -5,6 +5,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 export interface AuthUser {
   userId: string;
   fullName: string;
+  email: string,
   avatarUrl?: string;
 }
 

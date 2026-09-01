@@ -1,8 +1,9 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { Check, MoreVertical } from "lucide-react";
-import Image from "next/image";
+import { Check } from "lucide-react";
+import { ItemContainerVerticalBtn } from "./ItemContainerVerticalBtn";
+import { AvatarPic } from "./AvatarPic";
 
 interface ItemContainerProps {
   item: {
@@ -14,6 +15,7 @@ interface ItemContainerProps {
       fullName: string;
       avatarUrl: string;
     };
+    list: string;
     quantity: number;
   };
 }
@@ -38,28 +40,23 @@ export function ItemContainer({ item }: ItemContainerProps) {
 
       <div className="flex items-center gap-3">
         {item.quantity && (
-          <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+          <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-semibold text-slate-700">
             {item.quantity}x
           </span>
         )}
 
         {item.addedBy?._id !== user.userId && item.addedBy && (
           <div className="flex items-center gap-1.5 text-xs text-slate-400">
-            <span>Added by</span>
-            <Image
-              src={item.addedBy.avatarUrl || ""}
-              alt={item.addedBy.fullName || "User"}
-              className="h-6 w-6 rounded-full object-cover"
-              width={48}
-              height={48}
-              loading={"eager"}
+            <span className="font-semibold">Added by</span>
+            <AvatarPic
+              _id={item.addedBy._id}
+              fullName={item.addedBy.fullName}
+              avatarUrl={item.addedBy.avatarUrl}
             />
           </div>
         )}
 
-        <button className="text-slate-400 hover:text-slate-600">
-          <MoreVertical className="h-4 w-4" />
-        </button>
+        <ItemContainerVerticalBtn itemId={item._id} listId={item.list} />
       </div>
     </div>
   );
