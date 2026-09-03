@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 interface AvatarPicProps {
   _id?: string,
   fullName: string,
-  avatarUrl?: string
+  avatarUrl?: string | null
 }
 
 const AVATAR_COLORS = [

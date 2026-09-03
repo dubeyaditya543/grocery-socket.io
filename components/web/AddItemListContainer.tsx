@@ -10,7 +10,6 @@ import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import { ListDropdown, ListDropdownProps } from "./ListDropdown";
 import { createItemAction } from "@/lib/actions/item-action";
-import { useListStore } from "@/lib/store/list-store";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { CreateListBtn } from "./CreateListBtn";
 import { CreateListCard } from "./CreateListCard";

@@ -140,12 +140,12 @@ export async function patchItemAction(
 
   const itemName = formData.get("itemName");
   const rawQuantity = formData.get("quantity");
-  const quantity = rawQuantity ? Number(rawQuantity) : undefined;
+  const quantity = rawQuantity && Number(rawQuantity) > 0 ? Number(rawQuantity) : undefined;
   const rawPurchased = formData.get("purchased");
   const purchased =
     rawPurchased !== null ? rawPurchased === "true" || rawPurchased === "on" : undefined;
 
-  const parsed = itemSchema.safeParse({ itemName, quantity, purchased });
+  const parsed = itemSchema.safeParse({ itemName, quantity, purchased, listId });
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }
