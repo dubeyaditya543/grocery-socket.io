@@ -106,7 +106,11 @@ export async function deleteItemAction(
       return { success: false, error: "List not found" };
     }
 
-    const item = await Item.findOneAndDelete({ _id: itemId, list: listId, addedBy: authUser.userId });
+    const item = await Item.findOneAndDelete({
+      _id: itemId,
+      list: listId,
+      addedBy: authUser.userId,
+    });
     if (!item) {
       return { success: false, error: "Unauthorized" };
     }
@@ -138,14 +142,15 @@ export async function patchItemAction(
     return { success: false, error: "Invalid list, group id or itemId" };
   }
 
-  const itemName = formData.get("itemName");
+  const rawItemName = formData.get("itemName");
+  const itemName = rawItemName !== null ? String(rawItemName) : undefined;
   const rawQuantity = formData.get("quantity");
   const quantity = rawQuantity && Number(rawQuantity) > 0 ? Number(rawQuantity) : undefined;
   const rawPurchased = formData.get("purchased");
   const purchased =
     rawPurchased !== null ? rawPurchased === "true" || rawPurchased === "on" : undefined;
 
-  const parsed = itemSchema.safeParse({ itemName, quantity, purchased, listId });
+  const parsed = itemSchema.partial().safeParse({ itemName, quantity, purchased, listId });
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }
