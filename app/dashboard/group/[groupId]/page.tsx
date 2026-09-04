@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { Check, ShoppingCart, UserPlus, MoreVertical, Radio } from "lucide-react";
+import { ShoppingCart, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAutUserFromCookies } from "@/lib/serverAuth";
 import { notFound, redirect } from "next/navigation";
