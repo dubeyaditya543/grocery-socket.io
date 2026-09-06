@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { AvatarPic } from "./AvatarPic";
 import { AvatarGroupCount } from "../ui/avatar";
 
