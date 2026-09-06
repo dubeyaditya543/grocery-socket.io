@@ -26,7 +26,7 @@ export function UserProfileMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger render={<UserProfileBtn />} />
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout} className={"hover:cursor-pointer focus:text-green-700"}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

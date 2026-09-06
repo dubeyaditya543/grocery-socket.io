@@ -1,3 +1,5 @@
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 interface AvatarPicProps {
@@ -28,7 +30,7 @@ function getAvatarColor(identifier: string = "") {
 export function AvatarPic({fullName, avatarUrl, _id}: AvatarPicProps) {
   return (
     <Avatar>
-      <AvatarImage src={avatarUrl} alt="avatar" />
+      <AvatarImage src={avatarUrl!} alt="avatar" />
       <AvatarFallback className={getAvatarColor(fullName || _id)}>
         {fullName.charAt(0)?.toUpperCase()}
       </AvatarFallback>

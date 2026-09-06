@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import AuthProvider from "@/contexts/AuthContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toast";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -35,7 +37,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <AuthProvider>
-        <body className="flex min-h-full flex-col">{children}</body>
+        <body className="flex min-h-full flex-col">
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </body>
       </AuthProvider>
     </html>
   );

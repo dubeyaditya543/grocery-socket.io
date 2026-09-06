@@ -1,6 +1,5 @@
-import { Key, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
 
 export function CreateListBtn(props: React.ComponentProps<typeof Button>) {
   return (

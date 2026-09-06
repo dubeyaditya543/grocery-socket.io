@@ -13,6 +13,7 @@ import { GroupCard } from "@/components/web/GroupCard";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { User } from "@/lib/models/User";
 import { Sidebar } from "@/components/web/Sidebar";
+import mongoose from "mongoose";
 
 export default async function DashboardPage() {
   await connectDB();
@@ -26,6 +27,46 @@ export default async function DashboardPage() {
     .populate("createdBy", "fullName avatarUrl")
     .populate("members", "fullName avatarUrl")
     .lean();
+
+  const groupsData = await Group.aggregate([
+    {
+      $match: {
+        members: new mongoose.Types.ObjectId(user.userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "lists",
+        localField: "_id",
+        foreignField: "group",
+        as: "lists",
+      },
+    },
+    {
+      $lookup: {
+        from: "items",
+        localField: "lists._id",
+        foreignField: "list",
+        as: "items",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        groupId: "$_id",
+        totalItems: { $size: "$items" },
+        markedItems: {
+          $size: {
+            $filter: {
+              input: "$items",
+              as: "item",
+              cond: { $eq: ["$$item.purchased", true] },
+            },
+          },
+        },
+      },
+    },
+  ]);
 
   const loggedInUser = await User.findById(user.userId);
   if (!loggedInUser) {
@@ -47,7 +88,7 @@ export default async function DashboardPage() {
             <Input
               type="text"
               placeholder="Search"
-              className="h-10 rounded-xl border-slate-200 bg-slate-50 pr-24 pl-10 text-sm placeholder:text-slate-400 focus-visible:border-emerald-500 focus-visible:bg-white focus-visible:ring-emerald-500/20"
+              className="h-10 rounded-xl border-slate-200 bg-slate-50 pr-24 pl-10 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/20"
             />
             <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400">
               Shortcut 1.9
@@ -97,9 +138,19 @@ export default async function DashboardPage() {
           <div className="relative flex min-h-105 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-xs">
             {groups.length > 0 ? (
               <div className="flex flex-wrap gap-4">
-                {groups.map((group) => (
-                  <GroupCard group={JSON.parse(JSON.stringify(group))} key={group._id.toString()} />
-                ))}
+                {groups.map((group) => {
+                  const groupData = groupsData.find((grp) => grp.groupId.toString() === group._id.toString());
+                  const totalItems = groupData?.totalItems ?? 0
+                  const purchasedItems = groupData?.markedItems ?? 0;
+                  return (
+                    <GroupCard
+                      group={JSON.parse(JSON.stringify(group))}
+                      key={group._id.toString()}
+                      totalItems={totalItems}
+                      purchasedItems={purchasedItems}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <>
