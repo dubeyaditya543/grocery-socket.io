@@ -7,15 +7,20 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-        pathname: "/**"
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "images.unsplash.com",
-        pathname: "/**"
-      }
-    ]
-  }
+        pathname: "/**",
+      },
+    ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
 };
 
 export default nextConfig;

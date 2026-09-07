@@ -41,7 +41,7 @@ export default async function GroupDetailsPage({ params }: Params) {
     .populate("createdBy", "fullName avatarUrl")
     .lean();
 
-  const loggedInUser = await User.findById(user.userId);
+  const loggedInUser = await User.findById(user.userId).lean();
   if (!loggedInUser) {
     return null;
   }
@@ -49,7 +49,7 @@ export default async function GroupDetailsPage({ params }: Params) {
   return (
     <div className="flex min-h-screen w-full bg-[#f4f7f6] text-slate-900">
       {/* Left Sidebar */}
-      <Sidebar loggedInUser={loggedInUser} />
+      <Sidebar loggedInUser={JSON.parse(JSON.stringify(loggedInUser))} />
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">

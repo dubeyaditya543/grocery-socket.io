@@ -1,11 +1,13 @@
-"use client"
+"use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-interface AvatarPicProps {
-  _id?: string,
-  fullName: string,
-  avatarUrl?: string | null
+interface AvatarPicProps extends React.ComponentProps<typeof Avatar> {
+  _id?: string;
+  fullName: string;
+  avatarUrl?: string | null;
 }
 
 const AVATAR_COLORS = [
@@ -27,13 +29,20 @@ function getAvatarColor(identifier: string = "") {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-export function AvatarPic({fullName, avatarUrl, _id}: AvatarPicProps) {
+export function AvatarPic({
+  fullName,
+  avatarUrl,
+  _id,
+  className,
+  ...props
+}: AvatarPicProps) {
   return (
-    <Avatar>
-      <AvatarImage src={avatarUrl!} alt="avatar" />
+    <Avatar className={cn(className)} {...props}>
+      <AvatarImage src={avatarUrl ?? undefined} alt={fullName} />
       <AvatarFallback className={getAvatarColor(fullName || _id)}>
-        {fullName.charAt(0)?.toUpperCase()}
+        {fullName?.charAt(0)?.toUpperCase()}
       </AvatarFallback>
     </Avatar>
   );
 }
+
