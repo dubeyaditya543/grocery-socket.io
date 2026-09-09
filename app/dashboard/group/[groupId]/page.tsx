@@ -11,6 +11,8 @@ import { AddItemListContainer } from "@/components/web/AddItemListContainer";
 import { Sidebar } from "@/components/web/Sidebar";
 import { User } from "@/lib/models/User";
 import { DisplayAllLists } from "@/components/web/DisplayAllLists";
+import { LeaveGroupBtn } from "@/components/web/LeaveGroupBtn";
+import { AddMemberBtn } from "@/components/web/AddMemberBtn";
 
 interface Params {
   params: Promise<{ groupId: string }>;
@@ -68,10 +70,9 @@ export default async function GroupDetailsPage({ params }: Params) {
             <div className="flex items-center gap-3">
               <MemberStack members={JSON.parse(JSON.stringify(group.members))} />
 
-              <Button className="h-10 gap-2 rounded-xl bg-[#0c5443] px-4 text-xs font-semibold text-white shadow-xs transition hover:bg-[#094738]">
-                <UserPlus className="h-4 w-4" />
-                <span>Add Member</span>
-              </Button>
+              <AddMemberBtn />
+
+              <LeaveGroupBtn groupId={group._id.toString()}/>
             </div>
           </div>
 

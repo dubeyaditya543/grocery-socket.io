@@ -94,47 +94,104 @@ export async function deleteGroupAction(
   } catch {
     return { success: false, error: "Something went wrong. Please try again." };
   } finally {
-    if(session) await session.endSession()
+    if (session) await session.endSession();
   }
 
   revalidatePath("/dashboard");
   return { success: true };
 }
 
-export async function patchGroupAction(accessToken: string | null, groupId: string, _prevState: {success: boolean, error?: string}, formData: FormData): Promise<{success: boolean, error?: string}>{
-  if(!accessToken){
-    return {success: false, error: "You must be logged in."}
+export async function patchGroupAction(
+  accessToken: string | null,
+  groupId: string,
+  _prevState: { success: boolean; error?: string },
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  if (!accessToken) {
+    return { success: false, error: "You must be logged in." };
   }
 
-  if(!mongoose.isValidObjectId(groupId)){
-    return {success: false, error: "Invalid group id"}
+  if (!mongoose.isValidObjectId(groupId)) {
+    return { success: false, error: "Invalid group id" };
   }
 
-  const groupName = formData.get("groupName")
-  const parsed = groupSchema.safeParse({groupName})
-  if(!parsed.success){
-    return {success: false, error: parsed.error.issues[0].message}
+  const groupName = formData.get("groupName");
+  const parsed = groupSchema.safeParse({ groupName });
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
   let authUser;
-  try{
-    const {verifyAccessToken} = await import("@/lib/jwt");
-    authUser = verifyAccessToken(accessToken)
-  }catch{
-    return {success: false, error: "Session expired. Please log in again."}
+  try {
+    const { verifyAccessToken } = await import("@/lib/jwt");
+    authUser = verifyAccessToken(accessToken);
+  } catch {
+    return { success: false, error: "Session expired. Please log in again." };
   }
 
-  try{
-    await connectDB()
+  try {
+    await connectDB();
 
-    const updatedGroup = await Group.findOneAndUpdate({_id: groupId, createdBy: authUser.userId}, {groupName: parsed.data.groupName}, {new: true})
-    if(!updatedGroup){
-      return {success: false, error: "Forbidden action"}
+    const updatedGroup = await Group.findOneAndUpdate(
+      { _id: groupId, createdBy: authUser.userId },
+      { groupName: parsed.data.groupName },
+      { new: true },
+    );
+    if (!updatedGroup) {
+      return { success: false, error: "Forbidden action" };
     }
-  }catch {
-    return {success: false, error: "Something went wrong"}
+  } catch {
+    return { success: false, error: "Something went wrong" };
   }
 
-  revalidatePath("/dashboard")
-  return {success: true}
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function leaveGroupAction(
+  accessToken: string | null,
+  groupId: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!accessToken) {
+    return { success: false, error: "You must be logged in" };
+  }
+
+  if (!mongoose.isValidObjectId(groupId)) {
+    return { success: false, error: "Invalid group id provided" };
+  }
+
+  let authUser;
+  try {
+    const { verifyAccessToken } = await import("@/lib/jwt");
+    authUser = verifyAccessToken(accessToken);
+  } catch {
+    return { success: false, error: "Session expired. Please log in again" };
+  }
+
+  try {
+    await connectDB();
+    const group = await Group.findOne({ _id: groupId, members: authUser.userId });
+    if (!group) {
+      return { success: false, error: "Forbidden action" };
+    }
+    const remainingMembers = group.members.filter(
+      (member) => member.toString() !== authUser.userId,
+    );
+
+    if (group.createdBy.toString() === authUser.userId) {
+      if (remainingMembers.length === 0) {
+        await Group.deleteOne({ _id: group._id });  // TODO: make this multi-doc atomic
+        revalidatePath("/dashboard");
+        return { success: true };
+      }
+      group.createdBy = remainingMembers[0];
+    }
+
+    group.members = remainingMembers;
+    await group.save();
+  } catch {
+    return { success: false, error: "Something went wrong" };
+  }
+  revalidatePath("/dashboard");
+  return { success: true };
 }
