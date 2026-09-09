@@ -8,12 +8,14 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { deleteGroupAction } from "@/lib/actions/group-action";
+import { deleteGroupAction, patchGroupAction } from "@/lib/actions/group-action";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { AvatarPic } from "@/components/web/AvatarPic";
 import { Progress } from "../ui/progress";
 import { toast } from "../ui/toast";
+import { useEffect, useState } from "react";
+import { Input } from "../ui/input";
 
 export interface GroupCardProps {
   group: {
@@ -35,21 +37,50 @@ export interface GroupCardProps {
   purchasedItems: number;
 }
 
-interface DeleteGroupProps {
-  groupId: string;
-}
-
 export function GroupCard({ group, purchasedItems, totalItems }: GroupCardProps) {
   const { user, accessToken } = useAuth();
+  const [isGroupEditable, setIsGroupEditable] = useState<boolean>(false);
+  const [groupName, setGroupName] = useState<string>(group.groupName);
   const router = useRouter();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsGroupEditable(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [setIsGroupEditable]);
+
   if (!user) {
     return null;
   }
 
   const isCreator = group.createdBy._id && group.createdBy._id === user.userId;
 
-  async function handleDelete({ groupId }: DeleteGroupProps) {
-    const response = await deleteGroupAction(accessToken, groupId);
+  async function handleGroupEdit() {
+    try {
+      const formData = new FormData();
+      formData.append("groupName", groupName);
+
+      const response = await patchGroupAction(accessToken, group._id, { success: false }, formData);
+
+      if (!response.success) {
+        console.error(response.error ?? "Something went wrong");
+        return;
+      }
+
+      setIsGroupEditable(false)
+    } catch {
+      console.error("Something went wrong internally while updating group name");
+    }
+  }
+
+  async function handleDelete() {
+    const response = await deleteGroupAction(accessToken, group._id);
     if (!response.success) {
       console.error(response.error ?? "Something went wrong");
       return;
@@ -61,38 +92,63 @@ export function GroupCard({ group, purchasedItems, totalItems }: GroupCardProps)
       {/* Header with Title and More Menu */}
       <div className="space-y-1.5">
         <div className="flex items-start justify-between gap-2">
-          <div
-            className={"flex w-full items-center gap-1 hover:cursor-pointer"}
-            onClick={() => router.push(`/dashboard/group/${group._id}`)}
-          >
-            <h3 className="truncate text-base font-bold tracking-tight text-slate-900">
-              {group.groupName}
-            </h3>
-            <ArrowUp className={"rotate-40 text-gray-500"} size={16} />
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  className={"rounded-full bg-green-700 hover:cursor-pointer hover:bg-green-600"}
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent>
-              <DropdownMenuItem className={"cursor-pointer"}>Edit</DropdownMenuItem>
-              <DropdownMenuItem
-                className={"cursor-pointer text-red-500 focus:text-red-500"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDelete({ groupId: group._id });
-                }}
+          <div className={"flex w-full items-center gap-1 hover:cursor-pointer"}>
+            {isGroupEditable ? (
+              <Input
+                type="text"
+                value={groupName}
+                className="w-30"
+                onChange={(e) => setGroupName(e.target.value)}
+              />
+            ) : (
+              <div
+                className="flex items-center"
+                onClick={() => router.push(`/dashboard/group/${group._id}`)}
               >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <h3 className="truncate text-base font-bold tracking-tight text-slate-900">
+                  {group.groupName}
+                </h3>
+                <ArrowUp className={"rotate-40 text-gray-500"} size={16} />
+              </div>
+            )}
+          </div>
+          {isGroupEditable ? (
+            <Button
+              className={"cursor-pointer bg-green-700 font-semibold hover:bg-green-800"}
+              onClick={() => handleGroupEdit()}
+            >
+              Save
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    className={"rounded-full bg-green-700 hover:cursor-pointer hover:bg-green-600"}
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  className={"cursor-pointer"}
+                  onClick={() => setIsGroupEditable(true)}
+                >
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className={"cursor-pointer text-red-500 focus:text-red-500"}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete();
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {/* Creator / Role Pill */}

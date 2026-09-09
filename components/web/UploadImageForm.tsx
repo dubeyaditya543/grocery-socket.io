@@ -28,7 +28,6 @@ interface UploadImageFormProps {
 export function UploadImageForm({
   fullName,
   avatarUrl,
-  avatarPublicId,
 }: UploadImageFormProps) {
   const { accessToken } = useAuth();
   const [imageFile, setImageFile] = useState<File | null>(null);
