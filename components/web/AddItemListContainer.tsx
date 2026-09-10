@@ -66,7 +66,9 @@ export function AddItemListContainer({ groupId, lists }: AddItemProps) {
   return (
     <>
       {serverError && (
-        <p className="container px-4 py-2 rounded-lg mb-2 bg-red-600 font-semibold text-white">{serverError}</p>
+        <p className="container mb-2 rounded-lg bg-red-600 px-4 py-2 font-semibold text-white">
+          {serverError}
+        </p>
       )}
       <form
         className="grid grid-cols-1 gap-2.5 pr-4 sm:grid-cols-13 sm:items-center"
@@ -119,7 +121,7 @@ export function AddItemListContainer({ groupId, lists }: AddItemProps) {
           />
         </div>
 
-        <div className="flex w-fit items-center gap-2 sm:col-span-2">
+        <div className="flex w-full items-center gap-2 sm:col-span-2">
           <Button
             type="submit"
             className="h-10 w-full gap-1.5 rounded-md bg-[#257a66] px-4 text-sm font-semibold text-white shadow-xs transition hover:cursor-pointer hover:bg-[#229276]"
@@ -127,13 +129,13 @@ export function AddItemListContainer({ groupId, lists }: AddItemProps) {
             <Plus className="h-4 w-4" />
             <span>Add Item</span>
           </Button>
-          <Popover>
-            <PopoverTrigger render={<CreateListBtn />} />
-            <PopoverContent>
-              <CreateListCard groupId={groupId} />
-            </PopoverContent>
-          </Popover>
         </div>
+        <Popover>
+          <PopoverTrigger render={<CreateListBtn />} />
+          <PopoverContent>
+            <CreateListCard groupId={groupId} />
+          </PopoverContent>
+        </Popover>
       </form>
     </>
   );
