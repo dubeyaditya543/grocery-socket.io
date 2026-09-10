@@ -168,8 +168,12 @@ export async function leaveGroupAction(
     return { success: false, error: "Session expired. Please log in again" };
   }
 
+  let session: mongoose.ClientSession | null = null;
   try {
     await connectDB();
+
+    session = await mongoose.startSession();
+
     const group = await Group.findOne({ _id: groupId, members: authUser.userId });
     if (!group) {
       return { success: false, error: "Forbidden action" };
@@ -180,7 +184,14 @@ export async function leaveGroupAction(
 
     if (group.createdBy.toString() === authUser.userId) {
       if (remainingMembers.length === 0) {
-        await Group.deleteOne({ _id: group._id });  // TODO: make this multi-doc atomic
+        await session.withTransaction(async () => {
+          const lists = await List.find({ group: groupId }).session(session);
+          const listIds = lists.map((list) => list._id);
+
+          await Item.deleteMany({ list: { $in: listIds } }).session(session);
+          await List.deleteMany({ group: group._id }).session(session);
+          await Group.deleteOne({ _id: group._id }).session(session);
+        });
         revalidatePath("/dashboard");
         return { success: true };
       }
@@ -191,6 +202,10 @@ export async function leaveGroupAction(
     await group.save();
   } catch {
     return { success: false, error: "Something went wrong" };
+  } finally {
+    if (session) {
+      await session.endSession();
+    }
   }
   revalidatePath("/dashboard");
   return { success: true };

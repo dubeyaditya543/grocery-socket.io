@@ -6,6 +6,8 @@ interface ListItemsProps {
   lists: Array<{
     _id: string;
     listName: string;
+    group: string;        
+
     createdBy: {
       _id: string;
       fullName: string;
