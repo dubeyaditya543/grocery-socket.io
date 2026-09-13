@@ -64,7 +64,7 @@ export async function createItemAction(
     return { success: false, error: "Something went wrong" };
   }
 
-  revalidatePath(`/dashboard/group/${groupId}/list/${listId}/item`);
+  revalidatePath(`/dashboard/group/${groupId}`);
   return { success: true };
 }
 
@@ -118,7 +118,7 @@ export async function deleteItemAction(
     return { success: false, error: "Something went wrong" };
   }
 
-  revalidatePath(`/dashboard/group/${groupId}/list/${listId}/item`);
+  revalidatePath(`/dashboard/group/${groupId}`);
   return { success: true };
 }
 
@@ -190,6 +190,42 @@ export async function patchItemAction(
     return { success: false, error: "Something went wrong" };
   }
 
-  revalidatePath(`/dashboard/group/${groupId}/list/${listId}/item`);
+  revalidatePath(`/dashboard/group/${groupId}`);
   return { success: true };
+}
+
+export async function completeAllAction(accessToken: string | null, groupId: string): Promise<{success: boolean, error?: string, count?: number}>{
+  if(!accessToken){
+    return {success: false, error: "You must be logged in"}
+  }
+
+  if(!mongoose.isValidObjectId(groupId)){
+    return {success: false, error: "Invalid group id provided"}
+  }
+
+  let authUser;
+  try{
+    const {verifyAccessToken} = await import("@/lib/jwt")
+    authUser = verifyAccessToken(accessToken)
+  }catch {
+    return {success: false, error: "Session expired"}
+  }
+
+  try{
+    await connectDB()
+    const group = await Group.findOne({_id: groupId, members: authUser.userId})
+    if(!group){
+      return {success: false, error: "Forbidden action"}
+    }
+
+    const lists = await List.find({group: groupId}).select("_id");
+    const listIds = lists.map((list) => list._id)
+
+    const result = await Item.deleteMany({list: {$in: listIds}, purchased: true})
+
+    revalidatePath(`/dashboard/group/${groupId}`);
+    return {success: true, count: result.deletedCount}
+  }catch {
+    return {success: false, error: "Something went wrong"}
+  }
 }

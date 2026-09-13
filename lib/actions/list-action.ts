@@ -54,7 +54,7 @@ export async function createListAction(
     return { success: false, error: "Something went wrong" };
   }
 
-  revalidatePath(`/dashboard/group/${groupId}/list`);
+  revalidatePath(`/dashboard/group/${groupId}`);
   return { success: true };
 }
 
@@ -99,7 +99,7 @@ export async function deleteListAction(
     if(session) await session.endSession()
   }
 
-  revalidatePath(`/dashboard/group/${groupId}/list`);
+  revalidatePath(`/dashboard/group/${groupId}`);
   return { success: true };
 }
 
@@ -153,6 +153,6 @@ export async function patchListAction(
     return { success: false, error: "Something went wrong" };
   }
 
-  revalidatePath(`/dashboard/group/${groupId}/list`);
+  revalidatePath(`/dashboard/group/${groupId}`);
   return { success: true };
 }

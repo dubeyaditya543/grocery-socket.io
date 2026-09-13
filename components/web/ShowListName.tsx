@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
-import { MoreVertical, MoreVerticalIcon } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { deleteListAction, patchListAction } from "@/lib/actions/list-action";
+import { useSocket } from "@/contexts/SocketContext";
 
 interface ShowListNameProps {
   listName: string;
@@ -21,6 +22,7 @@ interface ShowListNameProps {
 
 export function ShowListName({ listName, groupId, listId }: ShowListNameProps) {
   const { accessToken } = useAuth();
+  const {socket} = useSocket()
   const [isListEditable, setIsListEditable] = useState<boolean>(false);
   const [newListName, setNewListName] = useState<string>(listName);
 
@@ -52,6 +54,8 @@ export function ShowListName({ listName, groupId, listId }: ShowListNameProps) {
         return;
       }
 
+      socket?.emit("group:update", groupId)
+
       setIsListEditable(false)
     } catch {
       console.error("Something went wrong");
@@ -64,6 +68,7 @@ export function ShowListName({ listName, groupId, listId }: ShowListNameProps) {
       if(!response.success){
         return
       }
+      socket?.emit("group:update", groupId)
     }catch {
       console.error("Something went wrong")
     }

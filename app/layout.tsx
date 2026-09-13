@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import AuthProvider from "@/contexts/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toast";
+import { SocketProvider } from "@/contexts/SocketContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -37,10 +38,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <AuthProvider>
+        <SocketProvider>
         <body className="flex min-h-full flex-col">
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </body>
+        </SocketProvider>
       </AuthProvider>
     </html>
   );

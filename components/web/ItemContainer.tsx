@@ -10,6 +10,7 @@ import { patchItemAction } from "@/lib/actions/item-action";
 import { useParams } from "next/navigation";
 import { Button } from "../ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSocket } from "@/contexts/SocketContext";
 
 interface ItemContainerProps {
   item: {
@@ -29,9 +30,9 @@ interface ItemContainerProps {
 export function ItemContainer({ item }: ItemContainerProps) {
   const params = useParams<{groupId: string}>()
   const { user, accessToken } = useAuth();
-  const [newItemName, setNewItemName] = useState<string | null>(item.itemName);
-  const [newQuantity, setQuantity] = useState<number | null>(item.quantity);
-  const [purchased, setPurchased] = useState<boolean | null>(item.purchased)
+  const {socket} = useSocket()
+  const [newItemName, setNewItemName] = useState<string | null>(null);
+  const [newQuantity, setQuantity] = useState<number | null>(null);
   const [isItemNameEditable, setIsItemNameEditable] = useState<boolean>(false);
   const [isQuantityEditable, setIsQuantityEditable] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string | null>(null)
@@ -59,8 +60,12 @@ export function ItemContainer({ item }: ItemContainerProps) {
         return
       }
 
+      socket?.emit("group:update", params.groupId)
+
       setIsItemNameEditable(false)
       setIsQuantityEditable(false)
+      setNewItemName(null)
+      setQuantity(null)
     }catch {
       setServerError("Something went wrong. Try again")
     }
@@ -79,17 +84,19 @@ export function ItemContainer({ item }: ItemContainerProps) {
         setServerError(res.error ?? "Something went wrong")
         return
       }
+
+      socket?.emit("group:update", params.groupId)
     }catch {
       setServerError("Something went wrong. Please try again")
     }
   }
 
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-slate-200/80 p-4 shadow-xs transition hover:border-slate-300">
+    <div className="flex items-center justify-between rounded-lg border border-slate-200/80 p-4 shadow-xs transition hover:border-slate-300 bg-slate-100">
       <div className="flex items-center gap-3.5">
         <Checkbox
-          checked={purchased ?? item.purchased}
-          onCheckedChange={(checked) => {setPurchased(Boolean(checked)); handlePurchase(Boolean(checked))}}
+          checked={item.purchased}
+          onCheckedChange={(checked) => handlePurchase(Boolean(checked))}
           className={`flex hover:cursor-pointer h-6 w-6 shrink-0 items-center justify-center rounded-lg  text-white`}
         >
           {item.purchased && <Check className="h-4 w-4 stroke-3" />}
@@ -98,7 +105,7 @@ export function ItemContainer({ item }: ItemContainerProps) {
           <Input value={newItemName ?? item.itemName} onChange={(e) => setNewItemName(e.target.value)} />
         ) : (
           <span
-            className={`text-sm font-medium text-slate-500 ${(purchased ?? item.purchased) && "line-through"}`}
+            className={`text-sm font-medium text-slate-500 ${item.purchased && "line-through"}`}
           >
             {item.itemName}
           </span>

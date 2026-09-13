@@ -10,6 +10,7 @@ import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { createListAction } from "@/lib/actions/list-action";
+import { useSocket } from "@/contexts/SocketContext";
 
 interface CreateListProps {
   groupId: string;
@@ -17,6 +18,7 @@ interface CreateListProps {
 
 export function CreateListCard({ groupId }: CreateListProps) {
   const { user, accessToken } = useAuth();
+  const {socket} = useSocket()
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<ListFormValues>({
@@ -39,6 +41,7 @@ export function CreateListCard({ groupId }: CreateListProps) {
         return;
       }
 
+      socket?.emit("group:update", groupId)
       form.reset()
     } catch {
       setServerError("Something went wrong. Please try again");
