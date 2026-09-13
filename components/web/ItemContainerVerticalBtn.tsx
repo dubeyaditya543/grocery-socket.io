@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { deleteItemAction } from "@/lib/actions/item-action";
+import { useSocket } from "@/contexts/SocketContext";
 
 interface ItemContainerVerticalBtnProps {
   listId: string;
@@ -27,6 +28,7 @@ export function ItemContainerVerticalBtn({
 }: ItemContainerVerticalBtnProps) {
   const params = useParams<{ groupId: string }>();
   const { user, accessToken } = useAuth();
+  const {socket} = useSocket()
   const [serverError, setServerError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,6 +59,8 @@ export function ItemContainerVerticalBtn({
         setServerError(res.error ?? "Something went wrong");
         return;
       }
+
+      socket?.emit("group:update", params.groupId)
     } catch {
       setServerError("Something went wrong while deleting");
     }

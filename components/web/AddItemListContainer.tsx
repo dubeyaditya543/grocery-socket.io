@@ -13,6 +13,7 @@ import { createItemAction } from "@/lib/actions/item-action";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { CreateListBtn } from "./CreateListBtn";
 import { CreateListCard } from "./CreateListCard";
+import { useSocket } from "@/contexts/SocketContext";
 
 interface AddItemProps {
   groupId: string;
@@ -21,6 +22,7 @@ interface AddItemProps {
 
 export function AddItemListContainer({ groupId, lists }: AddItemProps) {
   const { user, accessToken } = useAuth();
+  const { socket } = useSocket();
   const [serverError, setServerError] = useState<string | null>(null);
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema as any),
@@ -56,6 +58,8 @@ export function AddItemListContainer({ groupId, lists }: AddItemProps) {
         setServerError(res.error ?? "Something went wrong");
         return;
       }
+
+      socket?.emit("group:update", groupId);
 
       form.reset();
     } catch {

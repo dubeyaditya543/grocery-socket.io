@@ -1,5 +1,3 @@
-import { ShoppingCart, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { getAutUserFromCookies } from "@/lib/serverAuth";
 import { notFound, redirect } from "next/navigation";
 import mongoose from "mongoose";
@@ -13,6 +11,8 @@ import { User } from "@/lib/models/User";
 import { DisplayAllLists } from "@/components/web/DisplayAllLists";
 import { LeaveGroupBtn } from "@/components/web/LeaveGroupBtn";
 import { AddMemberBtn } from "@/components/web/AddMemberBtn";
+import { Cart } from "@/components/web/Cart";
+import { GroupSocketListener } from "@/components/web/GroupSocketListener";
 
 interface Params {
   params: Promise<{ groupId: string }>;
@@ -43,6 +43,50 @@ export default async function GroupDetailsPage({ params }: Params) {
     .populate("createdBy", "fullName avatarUrl")
     .lean();
 
+  const groupsData = await Group.aggregate([
+    {
+      $match: {
+        members: new mongoose.Types.ObjectId(user.userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "lists",
+        localField: "_id",
+        foreignField: "group",
+        as: "lists",
+      },
+    },
+    {
+      $lookup: {
+        from: "items",
+        localField: "lists._id",
+        foreignField: "list",
+        as: "items",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        groupId: "$_id",
+        totalItems: { $size: "$items" },
+        markedItems: {
+          $size: {
+            $filter: {
+              input: "$items",
+              as: "item",
+              cond: { $eq: ["$$item.purchased", true] },
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  const groupData = groupsData.find((grp) => grp.groupId.toString() === group._id.toString());
+  const totalItems = groupData?.totalItems ?? 0;
+  const purchasedItems = groupData?.markedItems ?? 0;
+
   const loggedInUser = await User.findById(user.userId).lean();
   if (!loggedInUser) {
     return null;
@@ -53,17 +97,14 @@ export default async function GroupDetailsPage({ params }: Params) {
       {/* Left Sidebar */}
       <Sidebar loggedInUser={JSON.parse(JSON.stringify(loggedInUser))} />
 
-      {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Page Content */}
         <main className="relative flex-1 overflow-y-auto p-6 pb-28 sm:p-8 lg:p-10">
-          {/* Header Section */}
           <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            {/* Title & Live Status */}
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 {group.groupName}
               </h1>
+              <GroupSocketListener groupId={group._id.toString()} />
             </div>
 
             {/* Members Stack & Add Member Button */}
@@ -72,7 +113,7 @@ export default async function GroupDetailsPage({ params }: Params) {
 
               <AddMemberBtn />
 
-              <LeaveGroupBtn groupId={group._id.toString()}/>
+              <LeaveGroupBtn groupId={group._id.toString()} />
             </div>
           </div>
 
@@ -86,23 +127,7 @@ export default async function GroupDetailsPage({ params }: Params) {
         </main>
 
         {/* Floating Bottom Trip Summary / Cart Bar */}
-        <div className="fixed bottom-6 left-1/2 z-30 w-[90%] max-w-2xl -translate-x-1/2 rounded-2xl border border-slate-200/80 bg-white/95 p-3.5 shadow-2xl backdrop-blur-md md:left-[calc(50%+8rem)]">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 font-bold text-slate-900">
-              <ShoppingCart className="h-5 w-5 text-[#0c5443]" />
-              <span>Cart</span>
-            </div>
-
-            <div className="text-center text-xs text-slate-600">
-              <span className="font-semibold text-slate-900">14 of 20</span> items collected • Total
-              Est: <span className="font-bold text-slate-900">$48.50</span>
-            </div>
-
-            <Button className="h-9 rounded-xl bg-[#0c5443] px-4 text-xs font-semibold text-white shadow-xs transition hover:bg-[#094738]">
-              Complete Trip
-            </Button>
-          </div>
-        </div>
+        <Cart totalItems={totalItems} purchasedItems={purchasedItems}/>
       </div>
     </div>
   );

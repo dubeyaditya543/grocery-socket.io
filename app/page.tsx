@@ -62,12 +62,10 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-linear-to-b from-[#ebf5f0] via-[#f4f9f6] to-[#f8faf9] px-4 pt-12 pb-20 sm:px-8 sm:pt-20 lg:pb-28">
-        {/* Subtle Ambient Glows */}
         <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-96 w-175 -translate-x-1/2 rounded-full bg-emerald-200/30 blur-3xl" />
 
         <div className="mx-auto max-w-7xl">
           <div className="grid items-center gap-12 lg:grid-cols-12">
-            {/* Left Column: Headline & Call To Action */}
             <div className="space-y-6 lg:col-span-6">
               <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl lg:leading-[1.12]">
                 Smart Grocery Shopping, <span className="text-[#0c5443]">Synced in Real Time</span>
@@ -78,7 +76,6 @@ export default function Home() {
                 effortlessly with family, roommates, and groups.
               </p>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
                 <Link href="/signup">
                   <Button className="h-12 rounded-xl bg-[#0c5443] px-7 text-sm font-semibold text-white shadow-lg shadow-emerald-900/15 transition hover:bg-[#094738]">

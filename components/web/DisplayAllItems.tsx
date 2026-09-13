@@ -18,17 +18,19 @@ export async function DisplayAllItems({ list }: DisplayAllItemsProps) {
   const items = await Item.find({ list: list._id })
     .populate("addedBy", "fullName avatarUrl")
     .lean();
-  if (items.length === 0) {
-    return;
-  }
 
   return (
     <>
       <ShowListName groupId={list.group} listId={list._id} listName={list.listName} />
-      {items.length > 0 &&
-        items.map((item) => (
-          <ItemContainer key={item._id.toString()} item={JSON.parse(JSON.stringify(item))} />
-        ))}
+      <div className="container flex w-full flex-col gap-4 rounded-md bg-gray-200 px-4 py-4">
+        {items.length === 0 ? (
+          <span className="font-semibold text-center py-4">Nothing to show here</span>
+        ) : (
+          items.map((item) => (
+            <ItemContainer key={item._id.toString()} item={JSON.parse(JSON.stringify(item))} />
+          ))
+        )}
+      </div>
     </>
   );
 }
