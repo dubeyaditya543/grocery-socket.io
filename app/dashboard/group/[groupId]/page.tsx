@@ -30,18 +30,34 @@ export default async function GroupDetailsPage({ params }: Params) {
   }
 
   await connectDB();
-  const group = await Group.findOne({ _id: groupId, members: user.userId })
+  const rawGroup = await Group.findOne({ _id: groupId, members: user.userId })
     .populate("members", "fullName avatarUrl")
     .populate("createdBy", "fullName avatarUrl")
     .lean();
 
-  if (!group) {
+  if (!rawGroup) {
     notFound();
   }
 
-  const lists = await List.find({ group: group._id })
+  const group = {
+    ...rawGroup,
+    groupName: rawGroup?.groupName.replace(
+      /(^|[^a-zA-Z])([a-zA-Z])/g,
+      (_, separtor, letter) => separtor + letter.toUpperCase(),
+    ),
+  };
+
+  const rawLists = await List.find({ group: group._id })
     .populate("createdBy", "fullName avatarUrl")
     .lean();
+
+  const lists = rawLists.map((list) => ({
+    ...list,
+    listName: list.listName.replace(
+      /(^|[^a-zA-Z])([a-zA-Z])/g,
+      (_, separator, letter) => separator + letter.toUpperCase(),
+    ),
+  }));
 
   const groupsData = await Group.aggregate([
     {
@@ -83,7 +99,7 @@ export default async function GroupDetailsPage({ params }: Params) {
     },
   ]);
 
-  const groupData = groupsData.find((grp) => grp.groupId.toString() === group._id.toString());
+  const groupData = groupsData.find((grp) => grp.groupId.toString() === group._id!.toString());
   const totalItems = groupData?.totalItems ?? 0;
   const purchasedItems = groupData?.markedItems ?? 0;
 
@@ -94,7 +110,6 @@ export default async function GroupDetailsPage({ params }: Params) {
 
   return (
     <div className="flex min-h-screen w-full bg-[#f4f7f6] text-slate-900">
-      {/* Left Sidebar */}
       <Sidebar loggedInUser={JSON.parse(JSON.stringify(loggedInUser))} />
 
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -104,16 +119,15 @@ export default async function GroupDetailsPage({ params }: Params) {
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 {group.groupName}
               </h1>
-              <GroupSocketListener groupId={group._id.toString()} />
+              <GroupSocketListener groupId={group._id!.toString()} />
             </div>
 
-            {/* Members Stack & Add Member Button */}
             <div className="flex items-center gap-3">
               <MemberStack members={JSON.parse(JSON.stringify(group.members))} />
 
               <AddMemberBtn />
 
-              <LeaveGroupBtn groupId={group._id.toString()} />
+              <LeaveGroupBtn groupId={group._id!.toString()} />
             </div>
           </div>
 
@@ -127,7 +141,7 @@ export default async function GroupDetailsPage({ params }: Params) {
         </main>
 
         {/* Floating Bottom Trip Summary / Cart Bar */}
-        <Cart totalItems={totalItems} purchasedItems={purchasedItems}/>
+        <Cart totalItems={totalItems} purchasedItems={purchasedItems} />
       </div>
     </div>
   );
