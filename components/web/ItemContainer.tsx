@@ -97,9 +97,9 @@ export function ItemContainer({ item }: ItemContainerProps) {
         <Checkbox
           checked={item.purchased}
           onCheckedChange={(checked) => handlePurchase(Boolean(checked))}
-          className={`flex hover:cursor-pointer h-6 w-6 shrink-0 items-center justify-center rounded-lg  text-white`}
+          className={`flex hover:cursor-pointer h-6 w-6 shrink-0 items-center justify-center rounded-full  text-white`}
         >
-          {item.purchased && <Check className="h-4 w-4 stroke-3" />}
+          {item.purchased && <Check className="h-4 w-4 stroke-4" />}
         </Checkbox>
         {isItemNameEditable ? (
           <Input value={newItemName ?? item.itemName} onChange={(e) => setNewItemName(e.target.value)} />

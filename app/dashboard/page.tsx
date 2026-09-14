@@ -23,10 +23,18 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const groups = await Group.find({ members: user.userId })
+  const rawGroups = await Group.find({ members: user.userId })
     .populate("createdBy", "fullName avatarUrl")
     .populate("members", "fullName avatarUrl")
     .lean();
+
+  const groups = rawGroups.map((group) => ({
+    ...group,
+    groupName: group.groupName.replace(
+      /(^|[^a-zA-Z])([a-zA-Z])/g,
+      (_, separator, letter) => separator + letter.toUpperCase(),
+    ),
+  }));
 
   const groupsData = await Group.aggregate([
     {
@@ -139,8 +147,10 @@ export default async function DashboardPage() {
             {groups.length > 0 ? (
               <div className="flex flex-wrap gap-4">
                 {groups.map((group) => {
-                  const groupData = groupsData.find((grp) => grp.groupId.toString() === group._id.toString());
-                  const totalItems = groupData?.totalItems ?? 0
+                  const groupData = groupsData.find(
+                    (grp) => grp.groupId.toString() === group._id.toString(),
+                  );
+                  const totalItems = groupData?.totalItems ?? 0;
                   const purchasedItems = groupData?.markedItems ?? 0;
                   return (
                     <GroupCard

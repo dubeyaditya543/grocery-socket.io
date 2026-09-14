@@ -8,7 +8,7 @@ export function CreateGroupBtn(props: React.ComponentProps<typeof Button>) {
     <Button
       {...props}
       className={cn(
-        "h-10 gap-2 rounded-xl bg-[#0c5443] px-5 text-sm font-semibold text-white transition hover:bg-[#094738]",
+        "h-10 gap-2 rounded-md cursor-pointer bg-[#0c5443] px-5 text-sm font-semibold text-white transition hover:bg-[#094738]",
         props.className
       )}
     >
