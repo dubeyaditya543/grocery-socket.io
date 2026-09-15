@@ -13,6 +13,8 @@ import { LeaveGroupBtn } from "@/components/web/LeaveGroupBtn";
 import { AddMemberBtn } from "@/components/web/AddMemberBtn";
 import { Cart } from "@/components/web/Cart";
 import { GroupSocketListener } from "@/components/web/GroupSocketListener";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AddMemberCard } from "@/components/web/AddMemberCard";
 
 interface Params {
   params: Promise<{ groupId: string }>;
@@ -125,7 +127,12 @@ export default async function GroupDetailsPage({ params }: Params) {
             <div className="flex items-center gap-3">
               <MemberStack members={JSON.parse(JSON.stringify(group.members))} />
 
-              <AddMemberBtn />
+              <Popover>
+                <PopoverTrigger render={<AddMemberBtn />} />
+                <PopoverContent>
+                  <AddMemberCard groupId={group._id.toString()} groupName={group.groupName} />
+                </PopoverContent>
+              </Popover>
 
               <LeaveGroupBtn groupId={group._id!.toString()} />
             </div>
