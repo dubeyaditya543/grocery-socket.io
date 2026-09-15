@@ -18,7 +18,7 @@ interface CreateListProps {
 
 export function CreateListCard({ groupId }: CreateListProps) {
   const { user, accessToken } = useAuth();
-  const {socket} = useSocket()
+  const { socket } = useSocket();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<ListFormValues>({
@@ -41,8 +41,8 @@ export function CreateListCard({ groupId }: CreateListProps) {
         return;
       }
 
-      socket?.emit("group:update", groupId)
-      form.reset()
+      socket?.emit("group:update", groupId);
+      form.reset();
     } catch {
       setServerError("Something went wrong. Please try again");
     }
@@ -53,7 +53,7 @@ export function CreateListCard({ groupId }: CreateListProps) {
   }
 
   return (
-    <div>
+    <>
       <Card>
         <CardHeader>
           <CardTitle>Create List</CardTitle>
@@ -83,6 +83,6 @@ export function CreateListCard({ groupId }: CreateListProps) {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }
