@@ -16,7 +16,7 @@ export function AddMemberCard({ groupId, groupName }: AddMemberCardProps) {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  async function handleAddMember() {
+  async function handleSendNotification() {
     setLoading(true);
     try {
       const res = await joinGroupNotificationAction(accessToken, username, groupId, groupName);
@@ -41,7 +41,7 @@ export function AddMemberCard({ groupId, groupName }: AddMemberCardProps) {
         onChange={(e) => setUsername(e.target.value)}
       />
       <Button
-        onClick={handleAddMember}
+        onClick={handleSendNotification}
         className={"cursor-pointer bg-emerald-700 font-semibold text-white hover:bg-emerald-800"}
       >
         {loading ? "Sending..." : "Send"}

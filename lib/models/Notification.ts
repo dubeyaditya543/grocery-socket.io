@@ -13,7 +13,6 @@ const notificationSchema = new Schema<INotification>(
     message: {
       type: String,
       required: [true, "Message is required to send a message"],
-      lowercase: true,
       trim: true,
     },
     sentTo: {
