@@ -14,6 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { User } from "@/lib/models/User";
 import { Sidebar } from "@/components/web/Sidebar";
 import mongoose from "mongoose";
+import { NotificationBtn } from "@/components/web/NotificationBtn";
+import { DisplayNotifications } from "@/components/web/DisplayNotifications";
 
 export default async function DashboardPage() {
   await connectDB();
@@ -103,15 +105,10 @@ export default async function DashboardPage() {
             </span>
           </div>
 
-          {/* Right Action Controls */}
           <div className="flex items-center gap-3">
-            {/* Notification Bell */}
-            <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900">
-              <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                2
-              </span>
-            </button>
+            <NotificationBtn>
+              <DisplayNotifications userId={user.userId} />
+            </NotificationBtn>
 
             {/* Create New Group Button */}
             <Popover>

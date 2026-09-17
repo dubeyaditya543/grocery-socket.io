@@ -148,6 +148,43 @@ export async function patchGroupAction(
   return { success: true };
 }
 
+export async function joinGroupAction(accessToken: string | null, groupId: string): Promise<{success: boolean, error?: string}>{
+  if(!accessToken){
+    return {success: false, error: "You must be logged in"}
+  }
+
+  if(!mongoose.isValidObjectId(groupId)){
+    return {success: false, error: ""}
+  }
+
+  let authUser
+  try{
+    const {verifyAccessToken} = await import("@/lib/jwt")
+    authUser = verifyAccessToken(accessToken)
+  }catch {
+    return {success: false, error: "Session expired. Please log in again"}
+  }
+
+  try{
+    await connectDB()
+    const group = await Group.findById({_id: groupId})
+    if(!group){
+      return {success: false, error: "Could not find group"}
+    }
+
+    if(group.members.includes(new mongoose.Types.ObjectId(authUser.userId))){
+      return {success: false, error: "User already a member"}
+    }
+    group.members.push(new mongoose.Types.ObjectId(authUser.userId))
+    await group.save()
+  }catch {
+    return {success: false, error: "Something went wrong"}
+  }
+
+  revalidatePath("/dashboard")
+  return {success: true}
+}
+
 export async function leaveGroupAction(
   accessToken: string | null,
   groupId: string,
