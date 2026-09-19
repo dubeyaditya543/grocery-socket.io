@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
+import { useAuth } from "./AuthContext";
 
 interface SocketContextValue {
   socket: Socket | null;
@@ -14,6 +15,7 @@ const SocketContext = createContext<SocketContextValue>({
 });
 
 export function SocketProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
 
@@ -30,6 +32,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       setIsConnected(true);
     });
 
+    if (user?.userId) {
+      socketInstance.emit("join-user", user.userId);
+    }
+
     socketInstance.on("disconnect", () => {
       console.log("🔴 Disconnected from Socket server");
       setIsConnected(false);
@@ -38,19 +44,21 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     setSocket(socketInstance);
 
     return () => {
-      socketInstance.off("connect")
-      socketInstance.off("disconnect")
-      socketInstance.disconnect()
+      socketInstance.off("connect");
+      socketInstance.off("disconnect");
+      socketInstance.disconnect();
     };
-  }, []);
+  }, [user?.userId]);
 
-  const value = useMemo(() => ({socket, isConnected}), [socket, isConnected])
+  useEffect(() => {
+    if (socket && isConnected && user?.userId) {
+      socket.emit("join-user", user.userId);
+    }
+  }, [socket, isConnected, user?.userId]);
 
-  return (
-    <SocketContext.Provider value={value}>
-      {children}
-    </SocketContext.Provider>
-  );
+  const value = useMemo(() => ({ socket, isConnected }), [socket, isConnected]);
+
+  return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
 }
 
 export function useSocket(): SocketContextValue {

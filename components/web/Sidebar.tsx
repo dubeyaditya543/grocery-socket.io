@@ -37,7 +37,7 @@ export function Sidebar({ loggedInUser }: SidebarProps) {
           </Link>
 
           <Link
-            href="#"
+            href="/sharedlist"
             className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
           >
             <ListTodo className="h-4 w-4" />

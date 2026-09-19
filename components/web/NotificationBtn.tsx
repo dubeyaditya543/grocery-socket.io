@@ -1,12 +1,17 @@
 "use client";
 
+import { useSocket } from "@/contexts/SocketContext";
 import { useUtilStore } from "@/lib/store/utils-store";
 import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ReactNode, useEffect } from "react";
+import { toast } from "../ui/toast";
 
 export function NotificationBtn({ children }: { children: ReactNode }) {
   const isNotificationOpen = useUtilStore((state) => state.isNotificationOpen);
   const setIsNotificationOpen = useUtilStore((state) => state.setIsNotificationOpen);
+  const { socket } = useSocket();
+  const router = useRouter();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -17,6 +22,21 @@ export function NotificationBtn({ children }: { children: ReactNode }) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [setIsNotificationOpen]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewNotification = (data: { message: string }) => {
+      toast.add({ type: "success", description: `🔔 ${data.message}` });
+      router.refresh();
+    };
+
+    socket.on("notification:new", handleNewNotification);
+
+    return () => {
+      socket.off("notification:new", handleNewNotification)
+    }
+  }, [socket, router]);
 
   return (
     <div className="relative">

@@ -29,16 +29,27 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("group:update", (groupId: string) => {
     socket.to(groupId).emit("group:updated");
-    console.log(`Broadcasted group:updated to room: ${groupId}`)
-  })
+    console.log(`Broadcasted group:updated to room: ${groupId}`);
+  });
+
+  socket.on("join-user", (userId: string) => {
+    socket.join(`user:${userId}`);
+    console.log(`Socket ${socket.id} joined personal room: user:${userId}`);
+  });
+
+  socket.on(
+    "notification:send",
+    ({ targetUserId, message }: { targetUserId: string; message: string }) => {
+      socket.to(`user:${targetUserId}`).emit("notification:new", { message });
+      console.log(`Notification sent to user:${targetUserId}: "${message}"`);
+    },
+  );
 
   socket.on("disconnect", () => {
-    console.log(`Client disconnected: ${socket.id}`)
-  })
-
+    console.log(`Client disconnected: ${socket.id}`);
+  });
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`Socket.io server running on http://localhost:${PORT}`)
-})
-
+  console.log(`Socket.io server running on http://localhost:${PORT}`);
+});
