@@ -21,6 +21,7 @@ export async function DisplayNotifications({ userId }: DisplayNotificationsProps
         {notifications.map((notification) => (
           <NotificationItem
             key={notification._id.toString()}
+            notificationId={notification._id.toString()}
             message={notification.message}
             groupId={notification.groupId.toString()}
             link={notification?.link}
